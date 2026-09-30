@@ -6,6 +6,23 @@ import (
 	"os"
 )
 
+type Query struct {
+	Action Action
+	Arg1   string
+	Arg2   string
+	Output []string
+}
+
+type Action int
+
+const (
+	AddCommand Action = iota + 1
+	UpdateCommand
+	DeleteCommand
+	MarkCommand
+	ListCommand
+)
+
 var (
 	lessThanOneErr             = errors.New("Please give at least one parameter!")
 	invalidOptionErr           = errors.New("Please enter a valid option!")
@@ -14,10 +31,12 @@ var (
 
 func main() {
 	var query Query
+
 	if len(os.Args) < 2 {
 		fmt.Errorf("something went wrong: %w\n", lessThanOneErr)
 		os.Exit(0)
 	}
+
 	switch os.Args[1] {
 	case "add":
 		query.Action = AddCommand
@@ -68,5 +87,17 @@ func main() {
 	default:
 		fmt.Errorf("something went wrong: %w", invalidOptionErr)
 		os.Exit(0)
+	}
+
+	var tm taskManager
+
+	err := tm.ProcessTheQueryAndGetTheResult(&query)
+	if err != nil {
+		fmt.Errorf("something went wrong: %w", err)
+		os.Exit(0)
+	}
+
+	for _, line := range query.Output {
+		fmt.Print(line)
 	}
 }

@@ -9,7 +9,7 @@ import (
 type taskManager struct {
 }
 
-func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query, buf []string) error {
+func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) error {
 	var storage Storage
 	switch q.Action {
 	case AddCommand:
@@ -38,7 +38,7 @@ func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query, buf []string) er
 			return err
 		}
 	case MarkCommand:
-		st, err := strToStatus(q.Arg1)
+		stt, err := strToStatus(q.Arg1)
 		if err != nil {
 			return err
 		}
@@ -46,11 +46,30 @@ func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query, buf []string) er
 		if err != nil {
 			return err
 		}
-		err = storage.Mark(st, id)
+		err = storage.Mark(stt, id)
 	case ListCommand:
 		if q.Arg1 == "" {
 			for _, t := range storage.Tasks {
-				// Design a way to handle the buffer considering the length of it, idk
+				q.Output = append(q.Output, t.Format())
+			}
+		} else {
+			stt, err := strToStatus(q.Arg1)
+			if err != nil {
+				return err
+			}
+			switch stt {
+			case InProgress:
+				for _, tdt := range storage.InprogressTasks {
+					q.Output = append(q.Output, tdt.Format())
+				}
+			case ToDo:
+				for _, tdt := range storage.TodoTasks {
+					q.Output = append(q.Output, tdt.Format())
+				}
+			case Done:
+				for _, tdt := range storage.DoneTasks {
+					q.Output = append(q.Output, tdt.Format())
+				}
 			}
 		}
 	default:

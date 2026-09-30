@@ -7,19 +7,19 @@ import (
 )
 
 type Storage struct {
-	Tasks           []Task
-	CanceledTasks   []*Task
+	Tasks []Task
+	// CanceledTasks   []*Task
 	TodoTasks       []*Task
 	InprogressTasks []*Task
 	DoneTasks       []*Task
 }
 
 type Task struct {
-	ID          int
-	Description string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	Status      Status
+	ID          int       `json:"id"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Status      Status    `json:"status"`
 }
 
 type Status int
@@ -48,6 +48,7 @@ func (s *Storage) Add(dsc string) (int, error) {
 		Status:      ToDo,
 	}
 	s.Tasks = append(s.Tasks, newTask)
+	s.TodoTasks = append(s.TodoTasks, &s.Tasks[len(s.Tasks)-1])
 	return newTask.ID, nil
 }
 
@@ -66,21 +67,54 @@ func (s *Storage) Delete(id int) error {
 	if id < 0 || id >= len(s.Tasks) {
 		return invalidIDErr
 	}
+	switch s.Tasks[id].Status {
+	case ToDo:
+		s.TodoTasks = append(s.TodoTasks[:id], s.TodoTasks[id+1:]...)
+	case InProgress:
+		s.InprogressTasks = append(s.InprogressTasks[:id], s.InprogressTasks[id+1:]...)
+	case Done:
+		s.DoneTasks = append(s.DoneTasks[:id], s.DoneTasks[id+1:]...)
+	}
+
 	s.Tasks = append(s.Tasks[:id], s.Tasks[id+1:]...)
 	return nil
 }
 
-func (s *Storage) Mark(st Status, id int) error {
+func (s *Storage) Mark(stt Status, id int) error {
 	if id < 0 || id >= len(s.Tasks) {
 		return invalidIDErr
 	}
-	s.Tasks[id].Status = st
+	prevStt := s.Tasks[id].Status
+	switch prevStt {
+	case ToDo:
+		s.TodoTasks = append(s.TodoTasks[:id], s.TodoTasks[id+1:]...)
+	case InProgress:
+		s.InprogressTasks = append(s.InprogressTasks[:id], s.InprogressTasks[id+1:]...)
+	case Done:
+		s.DoneTasks = append(s.DoneTasks[:id], s.DoneTasks[id+1:]...)
+	}
+	s.Tasks[id].Status = stt
+	switch stt {
+	case ToDo:
+		s.TodoTasks = append(s.TodoTasks, &s.Tasks[id])
+	case InProgress:
+		s.InprogressTasks = append(s.InprogressTasks, &s.Tasks[id])
+	case Done:
+		s.DoneTasks = append(s.DoneTasks, &s.Tasks[id])
+	}
+
 	return nil
 }
 
 var (
-	taskFormattingTemplate string = "%s (%v)\nID: %v\nCreated at: %v\nUpdated at: %v\n"
-	// For instance "Do the dishes(in-progress)\nID: 12\nCreated at: Sep 28 15:15\nUpdated at: sep 28 20:20\n"
+	taskFormattingTemplate string = "---------------------\n%s	(%v)\nID: %v\nCreated at: %v\nUpdated at: %v\n---------------------\n"
+	// For instance:
+	// ---------------------
+	// Do the dishes	(in-progress)
+	// ID: 12
+	// Created at: Sep 28 15:15
+	// Updated at: sep 28 20:20
+	// ---------------------
 )
 
 func (t Task) Format() string {
