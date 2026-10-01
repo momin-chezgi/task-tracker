@@ -1,14 +1,13 @@
 package main
 
 import (
-	"encoding/json"
-	"os"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
 )
 
-func TestStore(t *testing.T) {
+func TestStoreAndLoad(t *testing.T) {
 	storageTestCases := []Storage{
 		{
 			Tasks: []Task{
@@ -19,6 +18,13 @@ func TestStore(t *testing.T) {
 					UpdatedAt:   time.Now(),
 					Status:      InProgress,
 				},
+				{
+					ID:          2,
+					Description: "Get the driving license",
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now().Local().AddDate(1, 1, 0),
+					Status:      Done,
+				},
 			},
 		},
 	}
@@ -26,19 +32,22 @@ func TestStore(t *testing.T) {
 		t.Run("Test saving a storage", func(t *testing.T) {
 			err := Store(tt)
 			if err != nil {
-				t.Fatalf("An error occurred while calling Store(): %w", err)
+				t.Fatalf("An error occurred while calling Store(): %v", err)
 			}
-			data, err := os.ReadFile(jsonFile)
+			savedStorage, err := Load()
 			if err != nil {
-				t.Fatalf("An error occurred while reading the file: %w", err)
+				t.Fatalf("An error occurred while calling Load(): %v", err)
 			}
-			var savedStorage Storage
-			err = json.Unmarshal(data, &savedStorage)
-			if err != nil {
-				t.Fatalf("An error occurred in Unmarshal(): %w", err)
+
+			for i := range tt.Tasks {
+				tt.Tasks[i].CreatedAt = tt.Tasks[i].CreatedAt.Round(0)
+				tt.Tasks[i].UpdatedAt = tt.Tasks[i].UpdatedAt.Round(0)
 			}
-			if !reflect.DeepEqual(tt, savedStorage) {
-				t.Errorf("The saved and written structs are not equal!")
+
+			if !reflect.DeepEqual(savedStorage, tt) {
+				t.Errorf("The saved tasks and the given ones are different!")
+				fmt.Printf("Got: %v\n", savedStorage)
+				fmt.Printf("Want: %v\n", tt)
 			}
 		})
 	}

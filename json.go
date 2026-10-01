@@ -14,11 +14,7 @@ func Store(strg Storage) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(jsonFile, data, 0664)
-	if err != nil {
-		return err
-	}
-	return nil
+	return os.WriteFile(jsonFile, data, 0664)
 }
 
 func Load() (Storage, error) {
@@ -26,10 +22,7 @@ func Load() (Storage, error) {
 	if err != nil {
 		return Storage{}, err
 	}
-	var storage Storage
-	err = json.Unmarshal(data, &storage)
-	if err != nil {
-		return storage, err
-	}
-	return storage, nil
+	var tasks []Task
+	err = json.Unmarshal(data, &tasks)
+	return Storage{Tasks: tasks}, err
 }
