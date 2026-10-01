@@ -9,8 +9,17 @@ import (
 type taskManager struct {
 }
 
-func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) error {
-	var storage Storage
+func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) (outErr error) {
+	storage, err := Load()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if outErr == nil {
+			outErr = Store(storage)
+		}
+	}()
+
 	switch q.Action {
 	case AddCommand:
 		id, err := storage.Add(q.Arg1)
@@ -57,25 +66,16 @@ func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) error {
 			if err != nil {
 				return err
 			}
-			switch stt {
-			case InProgress:
-				for _, tdt := range storage.InprogressTasks {
-					q.Output = append(q.Output, tdt.Format())
-				}
-			case ToDo:
-				for _, tdt := range storage.TodoTasks {
-					q.Output = append(q.Output, tdt.Format())
-				}
-			case Done:
-				for _, tdt := range storage.DoneTasks {
-					q.Output = append(q.Output, tdt.Format())
+			for _, t := range storage.Tasks {
+				if t.Status == stt {
+					q.Output = append(q.Output, t.Format())
 				}
 			}
 		}
 	default:
 		return errors.New("Invalid action")
 	}
-	return nil
+	return err
 }
 
 func strToStatus(s string) (Status, error) {
