@@ -37,7 +37,7 @@ func (s *Storage) Add(dsc string) (int, error) {
 		return -1, emptyDescriptionErr
 	}
 	newTask := Task{
-		ID:          len(s.Tasks),
+		ID:          len(s.Tasks) + 1,
 		Description: dsc,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
@@ -51,10 +51,11 @@ func (s *Storage) Update(id int, dsc string) error {
 	if dsc == "" {
 		return emptyDescriptionErr
 	}
-	if id < 0 || id >= len(s.Tasks) {
+	if id <= 0 || id > len(s.Tasks) {
 		return invalidIDErr
 	}
-	s.Tasks[id].Description = dsc
+	s.Tasks[id-1].Description = dsc
+	s.Tasks[id-1].UpdatedAt = time.Now()
 	return nil
 }
 
