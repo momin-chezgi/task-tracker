@@ -21,7 +21,7 @@ type Task struct {
 type Status int
 
 const (
-	Canceled Status = iota + 1
+	Cancelled Status = iota + 1
 	ToDo
 	InProgress
 	Done
@@ -60,11 +60,11 @@ func (s *Storage) Update(id int, dsc string) error {
 }
 
 func (s *Storage) Delete(id int) error {
-	if id < 0 || id >= len(s.Tasks) {
+	if id <= 0 || id >= len(s.Tasks) {
 		return invalidIDErr
 	}
 
-	s.Tasks = append(s.Tasks[:id], s.Tasks[id+1:]...)
+	s.Tasks[id-1].Status = Cancelled
 	return nil
 }
 

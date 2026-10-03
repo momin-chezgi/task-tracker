@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -24,6 +25,8 @@ var storage = Storage{
 	},
 }
 
+var outOfRangeIDs = []int{-1, 0, 10000000, -2938973132}
+
 func TestAdd(t *testing.T) {
 	t.Run("Empty_description", func(t *testing.T) {
 		storage := Storage{}
@@ -46,7 +49,7 @@ func TestAdd(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 
-	for _, id := range []int{-1, 0, 10000000, -2938973132} {
+	for _, id := range outOfRangeIDs {
 		t.Run("Out_of_range_id", func(t *testing.T) {
 			err := storage.Update(id, "This ID is out of range and nothing should be changed!")
 			if err != invalidIDErr {
@@ -77,6 +80,25 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T)
+func TestDelete(t *testing.T) {
+	for _, id := range outOfRangeIDs {
+		t.Run(fmt.Sprintf("Out_range_id:%v", id), func(t *testing.T) {
+			if err := storage.Delete(id); err != invalidIDErr {
+				t.Errorf("An out of range number can't be the ID of a task!")
+			}
+		})
+	}
+	t.Run("Delete_the_first_task", func(t *testing.T) {
+		err := storage.Delete(1)
+		if err != nil {
+			t.Fatalf("An error occurred while deleting a task: %v", err)
+		}
+		if storage.Tasks[0].Status != Cancelled {
+			t.Errorf("The task #1 was not deleted!")
+		}
+	})
+}
+
 func TestMark(t *testing.T)
-func TestFormat(t *testing.T)
+
+// func TestFormat(t *testing.T)

@@ -59,7 +59,9 @@ func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) (outErr error) {
 	case ListCommand:
 		if q.Arg1 == "" {
 			for _, t := range storage.Tasks {
-				q.Output = append(q.Output, t.Format())
+				if t.Status != Cancelled {
+					q.Output = append(q.Output, t.Format())
+				}
 			}
 		} else {
 			stt, err := strToStatus(q.Arg1)
