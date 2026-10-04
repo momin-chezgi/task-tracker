@@ -33,3 +33,4 @@ go.work.sum
 
 # .json files
 *.json
+data.json
