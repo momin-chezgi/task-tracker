@@ -99,6 +99,64 @@ func TestDelete(t *testing.T) {
 	})
 }
 
-func TestMark(t *testing.T)
+func TestMark(t *testing.T) {
+	for _, id := range outOfRangeIDs {
+		t.Run(fmt.Sprintf("Out_of_range_id:%v", id), func(t *testing.T) {
+			if err := storage.Mark(Done, id); err != invalidIDErr {
+				t.Errorf("An out of range number can't be the ID of a task!")
+			}
+		})
+	}
 
-// func TestFormat(t *testing.T)
+	t.Run("Mark_as_cancelled:#1", func(t *testing.T) {
+		if err := storage.Mark(Cancelled, 1); err != nil {
+			t.Errorf("An error occurred while marking task #1 to the Cancelled flag")
+		}
+		if storage.Tasks[0].Status != Cancelled {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: Cancelled", storage.Tasks[0].Status.String())
+		}
+	})
+	t.Run("Mark_as_ToDo:#1", func(t *testing.T) {
+		if err := storage.Mark(ToDo, 1); err != nil {
+			t.Errorf("An error occurred while marking task #1 to the ToDo flag")
+		}
+		if storage.Tasks[0].Status != ToDo {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: ToDo", storage.Tasks[0].Status.String())
+		}
+	})
+	t.Run("Mark_as_inProgress:#1", func(t *testing.T) {
+		if err := storage.Mark(InProgress, 1); err != nil {
+			t.Errorf("An error occurred while marking task #1 to the InProgres flag")
+		}
+		if storage.Tasks[0].Status != InProgress {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: InProgress", storage.Tasks[0].Status.String())
+		}
+	})
+	t.Run("Mark_as_done:#1", func(t *testing.T) {
+		if err := storage.Mark(Done, 1); err != nil {
+			t.Errorf("An error occurred while marking task #1 to the Done flag")
+		}
+		if storage.Tasks[0].Status != Done {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: Done", storage.Tasks[0].Status.String())
+		}
+	})
+
+}
+
+func TestFormat(t *testing.T) {
+	t.Run("Task #1", func(t *testing.T) {
+		tm := time.Now().Round(0)
+		task := Task{
+			ID:          100,
+			Description: "Come up with a jogging routine",
+			CreatedAt:   tm,
+			UpdatedAt:   tm,
+			Status:      Cancelled,
+		}
+		want := fmt.Sprintf("---------------------\nCome up with a jogging routine	(Cancelled)\nID: 100\nCreated at: %v\nUpdated at: %v\n---------------------\n", tm, tm)
+		if task.Format() != want {
+			t.Errorf("The task formatting is not in the correct way. Got:%s, want:%s", task.Format(), want)
+		}
+	})
+
+}

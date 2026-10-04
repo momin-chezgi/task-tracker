@@ -27,6 +27,20 @@ const (
 	Done
 )
 
+func (stt Status) String() string {
+	switch stt {
+	case Cancelled:
+		return "Cancelled"
+	case ToDo:
+		return "To-Do"
+	case InProgress:
+		return "In progress"
+	case Done:
+		return "Done"
+	}
+	return "None of them"
+}
+
 var (
 	emptyDescriptionErr error = errors.New("An empty string can't be the name of a task!")
 	invalidIDErr        error = errors.New("The ID of the task is out of range!")
@@ -69,10 +83,10 @@ func (s *Storage) Delete(id int) error {
 }
 
 func (s *Storage) Mark(stt Status, id int) error {
-	if id < 0 || id >= len(s.Tasks) {
+	if id <= 0 || id > len(s.Tasks) {
 		return invalidIDErr
 	}
-	s.Tasks[id].Status = stt
+	s.Tasks[id-1].Status = stt
 	return nil
 }
 
@@ -88,5 +102,5 @@ var (
 )
 
 func (t Task) Format() string {
-	return fmt.Sprintf(taskFormattingTemplate, t.Description, t.ID, t.CreatedAt, t.UpdatedAt)
+	return fmt.Sprintf(taskFormattingTemplate, t.Description, t.Status, t.ID, t.CreatedAt, t.UpdatedAt)
 }
