@@ -70,12 +70,14 @@ func main() {
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
-		query.Arg1 = os.Args[2]
+		query.Arg1 = os.Args[1]
+		query.Arg2 = os.Args[2]
 	case "mark-todo":
 		query.Action = MarkCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
+		query.Arg1 = os.Args[1]
 		query.Arg1 = os.Args[2]
 	case "list":
 		query.Action = ListCommand

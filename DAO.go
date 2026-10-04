@@ -74,7 +74,7 @@ func (s *Storage) Update(id int, dsc string) error {
 }
 
 func (s *Storage) Delete(id int) error {
-	if id <= 0 || id >= len(s.Tasks) {
+	if id <= 0 || id > len(s.Tasks) {
 		return invalidIDErr
 	}
 
