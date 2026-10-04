@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -50,5 +51,25 @@ func TestStoreAndLoad(t *testing.T) {
 				fmt.Printf("Want: %v\n", tt)
 			}
 		})
+	}
+}
+
+func TestLoadEmptyFile(t *testing.T) {
+	originalJSONFile := jsonFile
+	jsonFile = t.TempDir() + "/data.json"
+	t.Cleanup(func() {
+		jsonFile = originalJSONFile
+	})
+
+	if err := os.WriteFile(jsonFile, nil, 0664); err != nil {
+		t.Fatalf("An error occurred while creating an empty data file: %v", err)
+	}
+
+	storage, err := Load()
+	if err != nil {
+		t.Fatalf("Load() should accept an empty data file: %v", err)
+	}
+	if len(storage.Tasks) != 0 {
+		t.Errorf("Load() returned tasks for an empty data file: got %v", storage.Tasks)
 	}
 }
