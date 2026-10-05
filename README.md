@@ -4,6 +4,109 @@ A CLI command that manages your tasks: what you need to do, what you have done, 
 #### Where does the idea come from?
 It is already an educational project in Go, based on the projects on roadmap.sh in the [Task Tracker CLI](https://roadmap.sh/projects/task-tracker).
 
+## Installation
+
+### Prerequisites
+
+This project requires **Go 1.27.1 or later**.
+
+Check whether Go is already installed:
+
+```bash
+go version
+```
+
+If Go is not installed, install it from the official Go website.
+
+### Linux
+
+Install `task-tracker` with:
+
+```bash
+go install github.com/momin-chezgi/task-tracker@latest
+```
+
+Go will install the executable in your Go binary directory, usually:
+
+```text
+~/go/bin
+```
+
+Make sure this directory is in your `PATH`.
+
+For Bash or Zsh:
+
+```bash
+export PATH="$HOME/go/bin:$PATH"
+```
+
+To make this change permanent, add the line above to your `~/.bashrc` or `~/.zshrc`.
+
+You can then run the program from any directory:
+
+```bash
+task-tracker
+```
+
+### Windows
+
+Open **PowerShell** and run:
+
+```powershell
+go install github.com/momin-chezgi/task-tracker@latest
+```
+
+Go will normally install the executable in:
+
+```text
+%USERPROFILE%\go\bin
+```
+
+Make sure this directory is included in your user's `PATH`.
+
+After adding it to `PATH`, restart PowerShell and run:
+
+```powershell
+task-tracker
+```
+
+### Verify the installation
+
+You can check that the executable is available with:
+
+**Linux:**
+
+```bash
+which task-tracker
+```
+
+**Windows PowerShell:**
+
+```powershell
+Get-Command task-tracker
+```
+
+If the command returns the location of the executable, the installation was successful.
+
+### Update
+
+To update an existing installation to the latest version:
+
+```bash
+go install github.com/momin-chezgi/task-tracker@latest
+```
+
+The new executable will replace the previous version.
+
+### Install a specific version
+
+You can also install a specific version by replacing `@latest` with a version tag:
+
+```bash
+go install github.com/momin-chezgi/task-tracker@v1.0.0
+```
+
+Replace `v1.0.0` with the version you want to install.
 
 ## Options:
 1. `add`: makes a new task and adds it to the list of tasks. You should pass a string argument for the description of the task.
