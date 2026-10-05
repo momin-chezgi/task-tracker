@@ -74,6 +74,15 @@ func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) (outErr error) {
 			q.Output = append(q.Output, "Nothing here!")
 		}
 		return err
+	case ShowCommand:
+		id, err := strconv.Atoi(q.Arg1)
+		if err != nil {
+			return err
+		}
+		if id <= 0 || id > len(storage.Tasks) {
+			return invalidIDErr
+		}
+		q.Output = []string{storage.Tasks[id-1].Format()}
 	default:
 		return errors.New("Invalid action")
 	}
