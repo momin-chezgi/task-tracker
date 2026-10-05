@@ -18,7 +18,7 @@ type Action int
 const (
 	AddCommand Action = iota + 1
 	UpdateCommand
-	DeleteCommand
+	CancelCommand
 	MarkCommand
 	ListCommand
 )
@@ -52,8 +52,8 @@ func main() {
 		}
 		query.Arg1 = os.Args[2]
 		query.Arg2 = os.Args[3]
-	case "delete":
-		query.Action = DeleteCommand
+	case "cancel":
+		query.Action = CancelCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}

@@ -34,12 +34,12 @@ func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) (outErr error) {
 		}
 		err = storage.Update(id, q.Arg2)
 		return err
-	case DeleteCommand:
+	case CancelCommand:
 		id, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err
 		}
-		err = storage.Delete(id)
+		err = storage.Cancel(id)
 		return err
 	case MarkCommand:
 		stt, err := strToStatus(q.Arg1)

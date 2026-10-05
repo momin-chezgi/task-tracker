@@ -73,7 +73,7 @@ func (s *Storage) Update(id int, dsc string) error {
 	return nil
 }
 
-func (s *Storage) Delete(id int) error {
+func (s *Storage) Cancel(id int) error {
 	if id <= 0 || id > len(s.Tasks) {
 		return invalidIDErr
 	}
@@ -85,6 +85,9 @@ func (s *Storage) Delete(id int) error {
 func (s *Storage) Mark(stt Status, id int) error {
 	if id <= 0 || id > len(s.Tasks) {
 		return invalidIDErr
+	}
+	if s.Tasks[id-1].Status == Cancelled {
+		return errors.New("This task has been cancelled!")
 	}
 	s.Tasks[id-1].Status = stt
 	return nil

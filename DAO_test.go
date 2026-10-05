@@ -80,21 +80,21 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T) {
+func TestCancel(t *testing.T) {
 	for _, id := range outOfRangeIDs {
 		t.Run(fmt.Sprintf("Out_range_id:%v", id), func(t *testing.T) {
-			if err := storage.Delete(id); err != invalidIDErr {
+			if err := storage.Cancel(id); err != invalidIDErr {
 				t.Errorf("An out of range number can't be the ID of a task!")
 			}
 		})
 	}
-	t.Run("Delete_the_first_task", func(t *testing.T) {
-		err := storage.Delete(1)
+	t.Run("Cancel_the_first_task", func(t *testing.T) {
+		err := storage.Cancel(1)
 		if err != nil {
 			t.Fatalf("An error occurred while deleting a task: %v", err)
 		}
 		if storage.Tasks[0].Status != Cancelled {
-			t.Errorf("The task #1 was not deleted!")
+			t.Errorf("The task #1 was not Canceld!")
 		}
 	})
 }
