@@ -1,44 +1,15 @@
-package main
+package store
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
-	"fmt"
+	"os"
 	"time"
 )
 
 type Storage struct {
 	Tasks []Task
-}
-
-type Task struct {
-	ID          int       `json:"id"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Status      Status    `json:"status"`
-}
-
-type Status int
-
-const (
-	Cancelled Status = iota + 1
-	ToDo
-	InProgress
-	Done
-)
-
-func (stt Status) String() string {
-	switch stt {
-	case Cancelled:
-		return "Cancelled"
-	case ToDo:
-		return "To-Do"
-	case InProgress:
-		return "In progress"
-	case Done:
-		return "Done"
-	}
-	return "None of them"
 }
 
 var (
@@ -94,16 +65,26 @@ func (s *Storage) Mark(stt Status, id int) error {
 }
 
 var (
-	taskFormattingTemplate string = "---------------------\n%s	(%v)\nID: %v\nCreated at: %v\nUpdated at: %v\n---------------------\n"
-	// For instance:
-	// ---------------------
-	// Do the dishes	(in-progress)
-	// ID: 12
-	// Created at: Sep 28 15:15
-	// Updated at: sep 28 20:20
-	// ---------------------
+	jsonFile = "data.json"
 )
 
-func (t Task) Format() string {
-	return fmt.Sprintf(taskFormattingTemplate, t.Description, t.Status, t.ID, t.CreatedAt, t.UpdatedAt)
+func Store(strg Storage) error {
+	data, err := json.MarshalIndent(strg.Tasks, "", " ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(jsonFile, data, 0664)
+}
+
+func Load() (Storage, error) {
+	data, err := os.ReadFile(jsonFile)
+	if err != nil {
+		return Storage{}, err
+	}
+	if len(bytes.TrimSpace(data)) == 0 {
+		return Storage{Tasks: []Task{}}, nil
+	}
+	var tasks []Task
+	err = json.Unmarshal(data, &tasks)
+	return Storage{Tasks: tasks}, err
 }

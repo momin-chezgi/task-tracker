@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"errors"
@@ -87,23 +87,4 @@ func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) (outErr error) {
 		return errors.New("Invalid action")
 	}
 	return err
-}
-
-func strToStatus(s string) (Status, error) {
-	switch s {
-	case "mark-in-progress":
-		return InProgress, nil
-	case "in-progress":
-		return InProgress, nil
-	case "mark-todo":
-		return ToDo, nil
-	case "todo":
-		return ToDo, nil
-	case "mark-done":
-		return Done, nil
-	case "done":
-		return Done, nil
-	default:
-		return ToDo, errors.New("Invalid status given")
-	}
 }
