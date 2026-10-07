@@ -6,23 +6,25 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/momin-chezgi/task-tracker/internal/task"
 )
 
 var storage = Storage{
-	Tasks: []Task{
+	Tasks: []task.Task{
 		{
 			ID:          1,
 			Description: "Coding the project",
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
-			Status:      InProgress,
+			Status:      task.InProgress,
 		},
 		{
 			ID:          2,
 			Description: "Contact to Saba steel company",
 			CreatedAt:   time.Now().AddDate(0, 0, -28),
 			UpdatedAt:   time.Now(),
-			Status:      ToDo,
+			Status:      task.ToDo,
 		},
 	},
 }
@@ -33,7 +35,7 @@ func TestAdd(t *testing.T) {
 	t.Run("Empty_description", func(t *testing.T) {
 		storage := Storage{}
 		_, err := storage.Add("")
-		if err != emptyDescriptionErr {
+		if err != EmptyDescriptionErr {
 			t.Errorf("An empty string can't be the description of a task!")
 		}
 	})
@@ -54,7 +56,7 @@ func TestUpdate(t *testing.T) {
 	for _, id := range outOfRangeIDs {
 		t.Run("Out_of_range_id", func(t *testing.T) {
 			err := storage.Update(id, "This ID is out of range and nothing should be changed!")
-			if err != invalidIDErr {
+			if err != InvalidIDErr {
 				t.Errorf("An out of range number can't be the ID of a task!")
 			}
 		})
@@ -62,7 +64,7 @@ func TestUpdate(t *testing.T) {
 
 	t.Run("Empty_description", func(t *testing.T) {
 		err := storage.Update(1, "")
-		if err != emptyDescriptionErr {
+		if err != EmptyDescriptionErr {
 			t.Errorf("An empty string can't be the description of a task!")
 		}
 	})
@@ -85,7 +87,7 @@ func TestUpdate(t *testing.T) {
 func TestCancel(t *testing.T) {
 	for _, id := range outOfRangeIDs {
 		t.Run(fmt.Sprintf("Out_range_id:%v", id), func(t *testing.T) {
-			if err := storage.Cancel(id); err != invalidIDErr {
+			if err := storage.Cancel(id); err != InvalidIDErr {
 				t.Errorf("An out of range number can't be the ID of a task!")
 			}
 		})
@@ -95,7 +97,7 @@ func TestCancel(t *testing.T) {
 		if err != nil {
 			t.Fatalf("An error occurred while deleting a task: %v", err)
 		}
-		if storage.Tasks[0].Status != Cancelled {
+		if storage.Tasks[0].Status != task.Cancelled {
 			t.Errorf("The task #1 was not Canceld!")
 		}
 	})
@@ -104,41 +106,41 @@ func TestCancel(t *testing.T) {
 func TestMark(t *testing.T) {
 	for _, id := range outOfRangeIDs {
 		t.Run(fmt.Sprintf("Out_of_range_id:%v", id), func(t *testing.T) {
-			if err := storage.Mark(Done, id); err != invalidIDErr {
+			if err := storage.Mark(task.Done, id); err != InvalidIDErr {
 				t.Errorf("An out of range number can't be the ID of a task!")
 			}
 		})
 	}
 
 	t.Run("Mark_as_cancelled:#1", func(t *testing.T) {
-		if err := storage.Mark(Cancelled, 1); err != nil {
+		if err := storage.Mark(task.Cancelled, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the Cancelled flag")
 		}
-		if storage.Tasks[0].Status != Cancelled {
+		if storage.Tasks[0].Status != task.Cancelled {
 			t.Errorf("The task wasn't marked successfully; Got: %v, want: Cancelled", storage.Tasks[0].Status.String())
 		}
 	})
 	t.Run("Mark_as_ToDo:#1", func(t *testing.T) {
-		if err := storage.Mark(ToDo, 1); err != nil {
+		if err := storage.Mark(task.ToDo, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the ToDo flag")
 		}
-		if storage.Tasks[0].Status != ToDo {
+		if storage.Tasks[0].Status != task.ToDo {
 			t.Errorf("The task wasn't marked successfully; Got: %v, want: ToDo", storage.Tasks[0].Status.String())
 		}
 	})
 	t.Run("Mark_as_inProgress:#1", func(t *testing.T) {
-		if err := storage.Mark(InProgress, 1); err != nil {
+		if err := storage.Mark(task.InProgress, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the InProgres flag")
 		}
-		if storage.Tasks[0].Status != InProgress {
+		if storage.Tasks[0].Status != task.InProgress {
 			t.Errorf("The task wasn't marked successfully; Got: %v, want: InProgress", storage.Tasks[0].Status.String())
 		}
 	})
 	t.Run("Mark_as_done:#1", func(t *testing.T) {
-		if err := storage.Mark(Done, 1); err != nil {
+		if err := storage.Mark(task.Done, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the Done flag")
 		}
-		if storage.Tasks[0].Status != Done {
+		if storage.Tasks[0].Status != task.Done {
 			t.Errorf("The task wasn't marked successfully; Got: %v, want: Done", storage.Tasks[0].Status.String())
 		}
 	})
@@ -148,20 +150,20 @@ func TestMark(t *testing.T) {
 func TestStoreAndLoad(t *testing.T) {
 	storageTestCases := []Storage{
 		{
-			Tasks: []Task{
+			Tasks: []task.Task{
 				{
 					ID:          1,
 					Description: "Nothin here!",
 					CreatedAt:   time.Now(),
 					UpdatedAt:   time.Now(),
-					Status:      InProgress,
+					Status:      task.InProgress,
 				},
 				{
 					ID:          2,
 					Description: "Get the driving license",
 					CreatedAt:   time.Now(),
 					UpdatedAt:   time.Now().Local().AddDate(1, 1, 0),
-					Status:      Done,
+					Status:      task.Done,
 				},
 			},
 		},

@@ -4,45 +4,49 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+
+	"github.com/momin-chezgi/task-tracker/internal/query"
+	"github.com/momin-chezgi/task-tracker/internal/store"
+	"github.com/momin-chezgi/task-tracker/internal/task"
 )
 
-type taskManager struct {
+type TaskManager struct {
 }
 
-func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) (outErr error) {
-	storage, err := Load()
+func (tm *TaskManager) ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
+	storage, err := store.Load()
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if outErr == nil {
-			outErr = Store(storage)
+			outErr = store.Store(storage)
 		}
 	}()
 
 	switch q.Action {
-	case AddCommand:
+	case query.AddCommand:
 		id, err := storage.Add(q.Arg1)
 		if err != nil {
 			return err
 		}
 		q.Output = []string{fmt.Sprintf("Task added successfully (ID: %v)", id)}
-	case UpdateCommand:
+	case query.UpdateCommand:
 		id, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err
 		}
 		err = storage.Update(id, q.Arg2)
 		return err
-	case CancelCommand:
+	case query.CancelCommand:
 		id, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err
 		}
 		err = storage.Cancel(id)
 		return err
-	case MarkCommand:
-		stt, err := strToStatus(q.Arg1)
+	case query.MarkCommand:
+		stt, err := task.StrToStatus(q.Arg1)
 		if err != nil {
 			return err
 		}
@@ -52,15 +56,15 @@ func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) (outErr error) {
 		}
 		err = storage.Mark(stt, id)
 		return err
-	case ListCommand:
+	case query.ListCommand:
 		if q.Arg1 == "" {
 			for _, t := range storage.Tasks {
-				if t.Status != Cancelled {
+				if t.Status != task.Cancelled {
 					q.Output = append(q.Output, t.Format())
 				}
 			}
 		} else {
-			stt, err := strToStatus(q.Arg1)
+			stt, err := task.StrToStatus(q.Arg1)
 			if err != nil {
 				return err
 			}
@@ -74,13 +78,13 @@ func (tm *taskManager) ProcessTheQueryAndGetTheResult(q *Query) (outErr error) {
 			q.Output = append(q.Output, "Nothing here!")
 		}
 		return err
-	case ShowCommand:
+	case query.ShowCommand:
 		id, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err
 		}
 		if id <= 0 || id > len(storage.Tasks) {
-			return invalidIDErr
+			return store.InvalidIDErr
 		}
 		q.Output = []string{storage.Tasks[id-1].Format()}
 	default:

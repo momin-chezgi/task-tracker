@@ -52,7 +52,7 @@ func (stt Status) String() string {
 	return "None of them"
 }
 
-func strToStatus(s string) (Status, error) {
+func StrToStatus(s string) (Status, error) {
 	switch s {
 	case "mark-in-progress":
 		return InProgress, nil

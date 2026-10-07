@@ -4,24 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
-)
 
-type Query struct {
-	Action Action
-	Arg1   string
-	Arg2   string
-	Output []string
-}
-
-type Action int
-
-const (
-	AddCommand Action = iota + 1
-	UpdateCommand
-	CancelCommand
-	MarkCommand
-	ListCommand
-	ShowCommand
+	"github.com/momin-chezgi/task-tracker/internal/app"
+	"github.com/momin-chezgi/task-tracker/internal/query"
 )
 
 var (
@@ -31,7 +16,7 @@ var (
 )
 
 func main() {
-	var query Query
+	var q query.Query
 
 	if len(os.Args) < 2 {
 
@@ -41,73 +26,73 @@ func main() {
 
 	switch os.Args[1] {
 	case "add":
-		query.Action = AddCommand
+		q.Action = query.AddCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
-		query.Arg1 = os.Args[2]
+		q.Arg1 = os.Args[2]
 	case "update":
-		query.Action = UpdateCommand
+		q.Action = query.UpdateCommand
 		if len(os.Args) != 4 {
 			fmt.Fprintf(os.Stderr, "%v, want:3, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
-		query.Arg1 = os.Args[2]
-		query.Arg2 = os.Args[3]
+		q.Arg1 = os.Args[2]
+		q.Arg2 = os.Args[3]
 	case "cancel":
-		query.Action = CancelCommand
+		q.Action = query.CancelCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
-		query.Arg1 = os.Args[2]
+		q.Arg1 = os.Args[2]
 	case "mark-in-progress":
-		query.Action = MarkCommand
+		q.Action = query.MarkCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
-		query.Arg1 = os.Args[1]
-		query.Arg2 = os.Args[2]
+		q.Arg1 = os.Args[1]
+		q.Arg2 = os.Args[2]
 	case "mark-done":
-		query.Action = MarkCommand
+		q.Action = query.MarkCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
-		query.Arg1 = os.Args[1]
-		query.Arg2 = os.Args[2]
+		q.Arg1 = os.Args[1]
+		q.Arg2 = os.Args[2]
 	case "mark-todo":
-		query.Action = MarkCommand
+		q.Action = query.MarkCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
-		query.Arg1 = os.Args[1]
-		query.Arg2 = os.Args[2]
+		q.Arg1 = os.Args[1]
+		q.Arg2 = os.Args[2]
 	case "list":
-		query.Action = ListCommand
+		q.Action = query.ListCommand
 		if len(os.Args) > 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:1 or 2 , got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
 		if len(os.Args) == 3 {
-			query.Arg1 = os.Args[2]
+			q.Arg1 = os.Args[2]
 		}
 	case "show":
-		query.Action = ShowCommand
+		q.Action = query.ShowCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 		}
-		query.Arg1 = os.Args[2]
+		q.Arg1 = os.Args[2]
 	default:
 		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", invalidOptionErr)
 		os.Exit(0)
 	}
 
-	var tm taskManager
+	var tm app.TaskManager
 
-	err := tm.ProcessTheQueryAndGetTheResult(&query)
+	err := tm.ProcessTheQueryAndGetTheResult(&q)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", err)
 		os.Exit(0)
 	}
 
-	for _, line := range query.Output {
+	for _, line := range q.Output {
 		fmt.Println(line)
 	}
 }

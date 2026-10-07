@@ -6,27 +6,29 @@ import (
 	"errors"
 	"os"
 	"time"
+
+	"github.com/momin-chezgi/task-tracker/internal/task"
 )
 
 type Storage struct {
-	Tasks []Task
+	Tasks []task.Task
 }
 
 var (
-	emptyDescriptionErr error = errors.New("An empty string can't be the name of a task!")
-	invalidIDErr        error = errors.New("The ID of the task is out of range!")
+	EmptyDescriptionErr error = errors.New("An empty string can't be the name of a task!")
+	InvalidIDErr        error = errors.New("The ID of the task is out of range!")
 )
 
 func (s *Storage) Add(dsc string) (int, error) {
 	if dsc == "" {
-		return -1, emptyDescriptionErr
+		return -1, EmptyDescriptionErr
 	}
-	newTask := Task{
+	newTask := task.Task{
 		ID:          len(s.Tasks) + 1,
 		Description: dsc,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
-		Status:      ToDo,
+		Status:      task.ToDo,
 	}
 	s.Tasks = append(s.Tasks, newTask)
 	return newTask.ID, nil
@@ -34,10 +36,10 @@ func (s *Storage) Add(dsc string) (int, error) {
 
 func (s *Storage) Update(id int, dsc string) error {
 	if dsc == "" {
-		return emptyDescriptionErr
+		return EmptyDescriptionErr
 	}
 	if id <= 0 || id > len(s.Tasks) {
-		return invalidIDErr
+		return InvalidIDErr
 	}
 	s.Tasks[id-1].Description = dsc
 	s.Tasks[id-1].UpdatedAt = time.Now()
@@ -46,18 +48,18 @@ func (s *Storage) Update(id int, dsc string) error {
 
 func (s *Storage) Cancel(id int) error {
 	if id <= 0 || id > len(s.Tasks) {
-		return invalidIDErr
+		return InvalidIDErr
 	}
 
-	s.Tasks[id-1].Status = Cancelled
+	s.Tasks[id-1].Status = task.Cancelled
 	return nil
 }
 
-func (s *Storage) Mark(stt Status, id int) error {
+func (s *Storage) Mark(stt task.Status, id int) error {
 	if id <= 0 || id > len(s.Tasks) {
-		return invalidIDErr
+		return InvalidIDErr
 	}
-	if s.Tasks[id-1].Status == Cancelled {
+	if s.Tasks[id-1].Status == task.Cancelled {
 		return errors.New("This task has been cancelled!")
 	}
 	s.Tasks[id-1].Status = stt
@@ -82,9 +84,9 @@ func Load() (Storage, error) {
 		return Storage{}, err
 	}
 	if len(bytes.TrimSpace(data)) == 0 {
-		return Storage{Tasks: []Task{}}, nil
+		return Storage{Tasks: []task.Task{}}, nil
 	}
-	var tasks []Task
+	var tasks []task.Task
 	err = json.Unmarshal(data, &tasks)
 	return Storage{Tasks: tasks}, err
 }
