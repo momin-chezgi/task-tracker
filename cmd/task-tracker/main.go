@@ -21,7 +21,7 @@ func main() {
 	if len(os.Args) < 2 {
 
 		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", lessThanOneErr)
-		os.Exit(0)
+		os.Exit(1)
 	}
 
 	switch os.Args[1] {
@@ -29,12 +29,14 @@ func main() {
 		q.Action = query.AddCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
 		}
 		q.Arg1 = os.Args[2]
 	case "update":
 		q.Action = query.UpdateCommand
 		if len(os.Args) != 4 {
 			fmt.Fprintf(os.Stderr, "%v, want:3, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
 		}
 		q.Arg1 = os.Args[2]
 		q.Arg2 = os.Args[3]
@@ -42,12 +44,14 @@ func main() {
 		q.Action = query.CancelCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
 		}
 		q.Arg1 = os.Args[2]
 	case "mark-in-progress":
 		q.Action = query.MarkCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
 		}
 		q.Arg1 = os.Args[1]
 		q.Arg2 = os.Args[2]
@@ -55,6 +59,7 @@ func main() {
 		q.Action = query.MarkCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
 		}
 		q.Arg1 = os.Args[1]
 		q.Arg2 = os.Args[2]
@@ -62,6 +67,7 @@ func main() {
 		q.Action = query.MarkCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
 		}
 		q.Arg1 = os.Args[1]
 		q.Arg2 = os.Args[2]
@@ -69,6 +75,7 @@ func main() {
 		q.Action = query.ListCommand
 		if len(os.Args) > 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:1 or 2 , got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
 		}
 		if len(os.Args) == 3 {
 			q.Arg1 = os.Args[2]
@@ -77,11 +84,12 @@ func main() {
 		q.Action = query.ShowCommand
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
 		}
 		q.Arg1 = os.Args[2]
 	default:
 		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", invalidOptionErr)
-		os.Exit(0)
+		os.Exit(1)
 	}
 
 	var tm app.TaskManager
@@ -89,7 +97,7 @@ func main() {
 	err := tm.ProcessTheQueryAndGetTheResult(&q)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", err)
-		os.Exit(0)
+		os.Exit(1)
 	}
 
 	for _, line := range q.Output {

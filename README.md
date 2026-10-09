@@ -18,23 +18,15 @@ go version
 
 If Go is not installed, install it from the official Go website.
 
-### Linux
+### Linux and macOS
 
 Install `task-tracker` with:
 
 ```bash
-go install github.com/momin-chezgi/task-tracker@latest
+go install github.com/momin-chezgi/task-tracker/cmd/task-tracker@latest
 ```
 
-Go will install the executable in your Go binary directory, usually:
-
-```text
-~/go/bin
-```
-
-Make sure this directory is in your `PATH`.
-
-For Bash or Zsh:
+Go installs the executable in the directory reported by `go env GOBIN`. If `GOBIN` is not set, it uses `GOPATH/bin` (usually `~/go/bin`). Ensure that directory is in your `PATH`. For Bash or Zsh, if you use the default location, add:
 
 ```bash
 export PATH="$HOME/go/bin:$PATH"
@@ -42,10 +34,10 @@ export PATH="$HOME/go/bin:$PATH"
 
 To make this change permanent, add the line above to your `~/.bashrc` or `~/.zshrc`.
 
-You can then run the program from any directory:
+You can then run the program from any directory, for example:
 
 ```bash
-task-tracker
+task-tracker list
 ```
 
 ### Windows
@@ -53,31 +45,25 @@ task-tracker
 Open **PowerShell** and run:
 
 ```powershell
-go install github.com/momin-chezgi/task-tracker@latest
+go install github.com/momin-chezgi/task-tracker/cmd/task-tracker@latest
 ```
 
-Go will normally install the executable in:
-
-```text
-%USERPROFILE%\go\bin
-```
-
-Make sure this directory is included in your user's `PATH`.
+Go installs the executable in the directory reported by `go env GOBIN`. If `GOBIN` is not set, it uses `GOPATH/bin` (usually `%USERPROFILE%\go\bin`). Ensure that directory is included in your user's `PATH`.
 
 After adding it to `PATH`, restart PowerShell and run:
 
 ```powershell
-task-tracker
+task-tracker list
 ```
 
 ### Verify the installation
 
 You can check that the executable is available with:
 
-**Linux:**
+**Linux and macOS:**
 
 ```bash
-which task-tracker
+command -v task-tracker
 ```
 
 **Windows PowerShell:**
@@ -93,20 +79,24 @@ If the command returns the location of the executable, the installation was succ
 To update an existing installation to the latest version:
 
 ```bash
-go install github.com/momin-chezgi/task-tracker@latest
+go install github.com/momin-chezgi/task-tracker/cmd/task-tracker@latest
 ```
 
 The new executable will replace the previous version.
 
 ### Install a specific version
 
-You can also install a specific version by replacing `@latest` with a version tag:
+Replace `@latest` with the version tag you want:
 
 ```bash
-go install github.com/momin-chezgi/task-tracker@v1.0.0
+go install github.com/momin-chezgi/task-tracker/cmd/task-tracker@v1.0.0
 ```
 
-Replace `v1.0.0` with the version you want to install.
+Replace `v1.0.0` with an available release tag.
+
+## Data file
+
+Tasks are stored in `data.json` under the operating system's user config directory, inside a `task-tracker` folder. On Linux, this is typically `$XDG_CONFIG_HOME/task-tracker/data.json`, or `~/.config/task-tracker/data.json` when `XDG_CONFIG_HOME` is not set. The directory is created automatically. This keeps task data available when the command is run from different working directories.
 
 ## Options:
 1. `add`: makes a new task and adds it to the list of tasks. You should pass a string argument for the description of the task.
