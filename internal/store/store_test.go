@@ -112,14 +112,6 @@ func TestMark(t *testing.T) {
 		})
 	}
 
-	t.Run("Mark_as_cancelled:#1", func(t *testing.T) {
-		if err := storage.Mark(task.Cancelled, 1); err != nil {
-			t.Errorf("An error occurred while marking task #1 to the Cancelled flag")
-		}
-		if storage.Tasks[0].Status != task.Cancelled {
-			t.Errorf("The task wasn't marked successfully; Got: %v, want: Cancelled", storage.Tasks[0].Status.String())
-		}
-	})
 	t.Run("Mark_as_ToDo:#1", func(t *testing.T) {
 		if err := storage.Mark(task.ToDo, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the ToDo flag")
@@ -142,6 +134,15 @@ func TestMark(t *testing.T) {
 		}
 		if storage.Tasks[0].Status != task.Done {
 			t.Errorf("The task wasn't marked successfully; Got: %v, want: Done", storage.Tasks[0].Status.String())
+		}
+	})
+
+	t.Run("Mark_as_cancelled:#1", func(t *testing.T) {
+		if err := storage.Mark(task.Cancelled, 1); err != nil {
+			t.Errorf("An error occurred while marking task #1 to the Cancelled flag")
+		}
+		if storage.Tasks[0].Status != task.Cancelled {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: Cancelled", storage.Tasks[0].Status.String())
 		}
 	})
 
