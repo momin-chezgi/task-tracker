@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 	"time"
@@ -10,26 +11,60 @@ import (
 	"github.com/momin-chezgi/task-tracker/internal/task"
 )
 
-var storage = Storage{
-	Tasks: []task.Task{
-		{
-			ID:          1,
-			Description: "Coding the project",
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
-			Status:      task.InProgress,
+func newTestStorage() Storage {
+	return Storage{
+		Tasks: []task.Task{
+			{
+				ID:          1,
+				Description: "Coding the project",
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+				Status:      task.InProgress,
+			},
+			{
+				ID:          2,
+				Description: "Contact to Saba steel company",
+				CreatedAt:   time.Now().AddDate(0, 0, -28),
+				UpdatedAt:   time.Now(),
+				Status:      task.ToDo,
+			},
 		},
-		{
-			ID:          2,
-			Description: "Contact to Saba steel company",
-			CreatedAt:   time.Now().AddDate(0, 0, -28),
-			UpdatedAt:   time.Now(),
-			Status:      task.ToDo,
-		},
-	},
+	}
 }
 
 var outOfRangeIDs = []int{-1, 0, 10000000, -2938973132}
+
+func useTempJSONFile(t *testing.T) {
+	t.Helper()
+
+	originalJSONFile := jsonFile
+	jsonFile = filepath.Join(t.TempDir(), "data.json")
+	t.Cleanup(func() {
+		jsonFile = originalJSONFile
+	})
+}
+
+func TestDataFilePathUsesUserConfigDir(t *testing.T) {
+	originalJSONFile := jsonFile
+	jsonFile = ""
+	t.Cleanup(func() {
+		jsonFile = originalJSONFile
+	})
+
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		t.Fatalf("could not get the user config directory: %v", err)
+	}
+
+	path, err := dataFilePath()
+	if err != nil {
+		t.Fatalf("could not resolve the data file path: %v", err)
+	}
+	want := filepath.Join(configDir, "task-tracker", "data.json")
+	if path != want {
+		t.Errorf("dataFilePath() = %q, want %q", path, want)
+	}
+}
 
 func TestAdd(t *testing.T) {
 	t.Run("Empty_description", func(t *testing.T) {
@@ -41,6 +76,7 @@ func TestAdd(t *testing.T) {
 	})
 
 	t.Run("Task_with_an_ordinary_description", func(t *testing.T) {
+		storage := newTestStorage()
 		newID, err := storage.Add("Arrange a meeting with my friend")
 		if err != nil {
 			t.Errorf("An error happened in storage.Add(): %v", err)
@@ -52,6 +88,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	storage := newTestStorage()
 
 	for _, id := range outOfRangeIDs {
 		t.Run("Out_of_range_id", func(t *testing.T) {
@@ -84,26 +121,9 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestCancel(t *testing.T) {
-	for _, id := range outOfRangeIDs {
-		t.Run(fmt.Sprintf("Out_range_id:%v", id), func(t *testing.T) {
-			if err := storage.Cancel(id); err != InvalidIDErr {
-				t.Errorf("An out of range number can't be the ID of a task!")
-			}
-		})
-	}
-	t.Run("Cancel_the_first_task", func(t *testing.T) {
-		err := storage.Cancel(1)
-		if err != nil {
-			t.Fatalf("An error occurred while deleting a task: %v", err)
-		}
-		if storage.Tasks[0].Status != task.Cancelled {
-			t.Errorf("The task #1 was not Canceld!")
-		}
-	})
-}
-
 func TestMark(t *testing.T) {
+	storage := newTestStorage()
+
 	for _, id := range outOfRangeIDs {
 		t.Run(fmt.Sprintf("Out_of_range_id:%v", id), func(t *testing.T) {
 			if err := storage.Mark(task.Done, id); err != InvalidIDErr {
@@ -112,14 +132,6 @@ func TestMark(t *testing.T) {
 		})
 	}
 
-	t.Run("Mark_as_cancelled:#1", func(t *testing.T) {
-		if err := storage.Mark(task.Cancelled, 1); err != nil {
-			t.Errorf("An error occurred while marking task #1 to the Cancelled flag")
-		}
-		if storage.Tasks[0].Status != task.Cancelled {
-			t.Errorf("The task wasn't marked successfully; Got: %v, want: Cancelled", storage.Tasks[0].Status.String())
-		}
-	})
 	t.Run("Mark_as_ToDo:#1", func(t *testing.T) {
 		if err := storage.Mark(task.ToDo, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the ToDo flag")
@@ -145,9 +157,42 @@ func TestMark(t *testing.T) {
 		}
 	})
 
+	t.Run("Mark_as_cancelled:#1", func(t *testing.T) {
+		if err := storage.Mark(task.Cancelled, 1); err != nil {
+			t.Errorf("An error occurred while marking task #1 to the Cancelled flag")
+		}
+		if storage.Tasks[0].Status != task.Cancelled {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: Cancelled", storage.Tasks[0].Status.String())
+		}
+	})
+
+}
+
+func TestCancel(t *testing.T) {
+	storage := newTestStorage()
+
+	for _, id := range outOfRangeIDs {
+		t.Run(fmt.Sprintf("Out_range_id:%v", id), func(t *testing.T) {
+			if err := storage.Cancel(id); err != InvalidIDErr {
+				t.Errorf("An out of range number can't be the ID of a task!")
+			}
+		})
+	}
+	t.Run("Cancel_the_first_task", func(t *testing.T) {
+		err := storage.Cancel(1)
+		if err != nil {
+			t.Fatalf("An error occurred while deleting a task: %v", err)
+		}
+		if storage.Tasks[0].Status != task.Cancelled {
+			t.Errorf("The task #1 was not Canceld!")
+		}
+	})
+
 }
 
 func TestStoreAndLoad(t *testing.T) {
+	useTempJSONFile(t)
+
 	storageTestCases := []Storage{
 		{
 			Tasks: []task.Task{
@@ -194,11 +239,7 @@ func TestStoreAndLoad(t *testing.T) {
 }
 
 func TestLoadEmptyFile(t *testing.T) {
-	originalJSONFile := jsonFile
-	jsonFile = t.TempDir() + "/data.json"
-	t.Cleanup(func() {
-		jsonFile = originalJSONFile
-	})
+	useTempJSONFile(t)
 
 	if err := os.WriteFile(jsonFile, nil, 0664); err != nil {
 		t.Fatalf("An error occurred while creating an empty data file: %v", err)
@@ -210,5 +251,17 @@ func TestLoadEmptyFile(t *testing.T) {
 	}
 	if len(storage.Tasks) != 0 {
 		t.Errorf("Load() returned tasks for an empty data file: got %v", storage.Tasks)
+	}
+}
+
+func TestLoadMissingFile(t *testing.T) {
+	useTempJSONFile(t)
+
+	storage, err := Load()
+	if err != nil {
+		t.Fatalf("Load() should accept a missing data file: %v", err)
+	}
+	if len(storage.Tasks) != 0 {
+		t.Errorf("Load() returned tasks for a missing data file: got %v", storage.Tasks)
 	}
 }
