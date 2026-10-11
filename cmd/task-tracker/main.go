@@ -24,9 +24,8 @@ func main() {
 	var q query.Query
 
 	if len(os.Args) < 2 {
-
-		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", lessThanOneErr)
-		os.Exit(1)
+		fmt.Fprintln(os.Stdout, helpMessage)
+		os.Exit(0)
 	}
 
 	switch os.Args[1] {
