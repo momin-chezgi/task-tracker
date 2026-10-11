@@ -10,6 +10,11 @@ import (
 )
 
 var (
+	version     = "dev"
+	helpMessage = "Task Tracker (CLI)\n This is an application to create tasks, track them, change their status or even cancel them.\n commands are:\nadd \"[Description of the task]\"\nupdate [id] \"[The new description]\"\ncancel [id]\nmark-in-progress [id]\nmark-done [id]\nmark-todo [id]\nlist\nlist in-progress\nlist done\nlist todo\nshow [id]\n"
+)
+
+var (
 	lessThanOneErr             = errors.New("Please give at least one parameter!")
 	invalidOptionErr           = errors.New("Please enter a valid option!")
 	incorrectNumberOfArguments = errors.New("Incorrect number of arguments!")
@@ -25,6 +30,10 @@ func main() {
 	}
 
 	switch os.Args[1] {
+	case "help":
+		fmt.Fprintln(os.Stdout, helpMessage)
+	case "version":
+		fmt.Fprintf(os.Stdout, "Version: %v", version)
 	case "add":
 		q.Action = query.AddCommand
 		if len(os.Args) != 3 {
@@ -93,6 +102,6 @@ func main() {
 	}
 
 	for _, line := range q.Output {
-		fmt.Println(line)
+		fmt.Fprintln(os.Stdout, line)
 	}
 }
