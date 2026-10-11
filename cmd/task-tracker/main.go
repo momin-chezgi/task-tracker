@@ -1,3 +1,5 @@
+// To build a release:
+// go build -ldflags="-X main.version=1.0.0" -o task-tracker
 package main
 
 import (
