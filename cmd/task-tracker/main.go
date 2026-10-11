@@ -11,7 +11,7 @@ import (
 
 var (
 	version     = "dev"
-	helpMessage = "Task Tracker (CLI)\n This is an application to create tasks, track them, change their status or even cancel them.\n commands are:\nadd \"[Description of the task]\"\nupdate [id] \"[The new description]\"\ncancel [id]\nmark-in-progress [id]\nmark-done [id]\nmark-todo [id]\nlist\nlist in-progress\nlist done\nlist todo\nshow [id]\n"
+	helpMessage = "\n\nTask Tracker (CLI)\n This is an application to create tasks, track them, change their status or even cancel them.\n commands are:\nadd \"[Description of the task]\"\nupdate [id] \"[The new description]\"\ncancel [id]\nmark-in-progress [id]\nmark-done [id]\nmark-todo [id]\nlist\nlist in-progress\nlist done\nlist todo\nshow [id]\n\n\n"
 )
 
 var (
@@ -32,8 +32,10 @@ func main() {
 	switch os.Args[1] {
 	case "help":
 		fmt.Fprintln(os.Stdout, helpMessage)
+		os.Exit(0)
 	case "version":
 		fmt.Fprintf(os.Stdout, "Version: %v", version)
+		os.Exit(0)
 	case "add":
 		q.Action = query.AddCommand
 		if len(os.Args) != 3 {
