@@ -34,7 +34,7 @@ func main() {
 		fmt.Fprintln(os.Stdout, helpMessage)
 		os.Exit(0)
 	case "version":
-		fmt.Fprintf(os.Stdout, "Version: %v", version)
+		fmt.Fprintf(os.Stdout, "Version: %v\n", version)
 		os.Exit(0)
 	case "add":
 		q.Action = query.AddCommand
