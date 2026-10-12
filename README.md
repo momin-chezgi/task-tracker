@@ -2,7 +2,7 @@
 A CLI command that manages your tasks: what you need to do, what you have done, what you are currently working on, and what you have cancelled.
 
 #### Where does the idea come from?
-It is already an educational project in Go, based on the projects on roadmap.sh in the [Task Tracker CLI](https://roadmap.sh/projects/task-tracker).
+It is an educational project in Go, based on the projects on roadmap.sh in the [Task Tracker CLI](https://roadmap.sh/projects/task-tracker).
 
 ## Installation
 
@@ -16,7 +16,7 @@ Check whether Go is already installed:
 go version
 ```
 
-If Go is not installed, install it from the official Go website.
+If Go is not installed, install it from the official [Go website](https://go.dev/dl/).
 
 ### Linux and macOS
 
@@ -48,9 +48,23 @@ Open **PowerShell** and run:
 go install github.com/momin-chezgi/task-tracker/cmd/task-tracker@latest
 ```
 
-Go installs the executable in the directory reported by `go env GOBIN`. If `GOBIN` is not set, it uses `GOPATH/bin` (usually `%USERPROFILE%\go\bin`). Ensure that directory is included in your user's `PATH`.
+Go installs the executable in the directory reported by `go env GOBIN`. If `GOBIN` is not set, it uses `GOPATH\bin` (usually `%USERPROFILE%\go\bin`).
 
-After adding it to `PATH`, restart PowerShell and run:
+To add the default installation directory to your user's `PATH`:
+
+1. Open the Start menu and search for **Edit environment variables for your account**.
+2. Select `Path` under **User variables**, then click **Edit**.
+3. Click **New** and add:
+
+   ```text
+   %USERPROFILE%\go\bin
+   ```
+
+4. Save the changes and restart PowerShell.
+
+If you have configured a custom `GOBIN`, add that directory instead.
+
+Run the following command to verify the installation:
 
 ```powershell
 task-tracker list
@@ -58,7 +72,7 @@ task-tracker list
 
 ### Verify the installation
 
-You can check that the executable is available with:
+You can check whether the executable is available with:
 
 **Linux and macOS:**
 
@@ -72,7 +86,7 @@ command -v task-tracker
 Get-Command task-tracker
 ```
 
-If the command returns the location of the executable, the installation was successful.
+If the command returns the location of the executable, it is available through your `PATH`.
 
 ### Update
 
@@ -86,28 +100,36 @@ The new executable will replace the previous version.
 
 ### Install a specific version
 
-Replace `@latest` with the version tag you want:
+Replace `@latest` with an available version tag:
 
 ```bash
 go install github.com/momin-chezgi/task-tracker/cmd/task-tracker@v1.0.0
 ```
 
-Replace `v1.0.0` with an available release tag.
+Make sure the version tag exists in the repository before using it.
 
 ## Data file
 
-Tasks are stored in `data.json` under the operating system's user config directory, inside a `task-tracker` folder. On Linux, this is typically `$XDG_CONFIG_HOME/task-tracker/data.json`, or `~/.config/task-tracker/data.json` when `XDG_CONFIG_HOME` is not set. The directory is created automatically. This keeps task data available when the command is run from different working directories.
+Tasks are stored in `data.json` under the operating system's user config directory, inside a `task-tracker` folder. On Linux, this is typically `$XDG_CONFIG_HOME/task-tracker/data.json`, or `~/.config/task-tracker/data.json` when `XDG_CONFIG_HOME` is not set. On Windows, the corresponding location is typically `%AppData%\task-tracker\data.json` when using Go's standard user configuration directory.
+
+The directory is created automatically. This keeps task data available when the command is run from different working directories.
 
 ## Options:
+
 * `add`: makes a new task and adds it to the list of tasks. You should pass a string argument for the description of the task.
+
 Example:
 ```
 $task-tracker add "Come up with a jogging routine"
 Task added successfully (ID: 2)
 ```
-> Note: Every task has one of these four stages: `done`, `todo`, `in-progress` or cancelled.
-> (Every newly added task is a `todo` task if you don't change its status with the `mark` command)
-* `list`: you can just write this option without any other arguments, or you can filter the tasks by their status.
+
+> Note: Every task has one of these four stages: `done`, `todo`, `in-progress` or `cancelled`.
+>
+> Every newly added task is a `todo` task if you don't change its status with the `mark` command.
+
+* `list`: you can write this option without any other arguments, or you can filter the tasks by their status.
+
 Example:
 ```
 $task-tracker list
@@ -131,6 +153,7 @@ ID: 4
 Created at: 2026-10-05 09:23:01.072078 +0330 +0330
 Updated at: 2026-10-05 09:23:01.072078 +0330 +0330
 ---------------------
+
 $task-tracker list done
 ---------------------
 Buy groceries     (Done)
@@ -138,6 +161,7 @@ ID: 1
 Created at: 2026-10-04 08:20:53.261562075 +0330 +0330
 Updated at: 2026-10-04 08:20:53.261562141 +0330 +0330
 ---------------------
+
 $task-tracker list todo
 ---------------------
 Come up with a jogging routine  (To-Do)
@@ -146,7 +170,9 @@ Created at: 2026-10-04 08:21:09.564909106 +0330 +0330
 Updated at: 2026-10-04 08:21:09.564909198 +0330 +0330
 ---------------------
 ```
+
 * `show`: Shows a single task distinguished by its ID.
+
 Example:
 ```
 $task-tracker show 2
@@ -157,7 +183,9 @@ Created at: 2026-10-04 08:21:09.564909106 +0330 +0330
 Updated at: 2026-10-04 08:21:09.564909198 +0330 +0330
 ---------------------
 ```
-* `update`: Update the description of a task distinguished by its ID. At the end you should give the new description string.
+
+* `update`: Updates the description of a task distinguished by its ID. At the end, provide the new description string.
+
 Example:
 ```
 $task-tracker show 1
@@ -177,7 +205,9 @@ Created at: 2026-10-04 08:20:53.261562075 +0330 +0330
 Updated at: 2026-10-05 10:31:01.9459913 +0330 +0330
 ---------------------
 ```
-* `cancel`: Cancels a command. This command won't be shown in the output of the `list` command
+
+* `cancel`: Cancels a task. Cancelled tasks are not shown in the output of the `list` command.
+
 Example:
 ```
 $task-tracker cancel 2
@@ -203,9 +233,10 @@ ID: 2
 Created at: 2026-10-04 08:21:09.564909106 +0330 +0330
 Updated at: 2026-10-04 08:21:09.564909198 +0330 +0330
 ---------------------
-
 ```
-* `mark`: You can change the status of a task. There are three options(if you enter `mark`, the output includes an error): `mark-todo`, `mark-in-progress`, `mark-done`
+
+* `mark`: Changes the status of a task. Use one of these commands: `mark-todo`, `mark-in-progress`, or `mark-done`. Running `mark` without a valid subcommand returns an error.
+
 Example:
 ```
 $task-tracker mark-todo 4
@@ -223,10 +254,12 @@ ID: 4
 Created at: 2026-10-05 09:23:01.072078 +0330 +0330
 Updated at: 2026-10-05 09:23:01.072078 +0330 +0330
 ---------------------
-$task-tracker  mark-done 2 
+
+$task-tracker mark-done 2
 something went wrong: This task has been cancelled!
 ```
->Note: you can't change the status of a cancelled task.
+
+> Note: You can't change the status of a cancelled task.
 
 * `help`
 * `version`
