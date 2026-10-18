@@ -56,13 +56,13 @@ func TestDataFilePathUsesUserConfigDir(t *testing.T) {
 		t.Fatalf("could not get the user config directory: %v", err)
 	}
 
-	path, err := dataFilePath()
+	path, err := DataFilePath()
 	if err != nil {
 		t.Fatalf("could not resolve the data file path: %v", err)
 	}
 	want := filepath.Join(configDir, "task-tracker", "data.json")
 	if path != want {
-		t.Errorf("dataFilePath() = %q, want %q", path, want)
+		t.Errorf("DataFilePath() = %q, want %q", path, want)
 	}
 }
 

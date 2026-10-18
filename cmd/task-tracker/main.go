@@ -9,6 +9,7 @@ import (
 
 	"github.com/momin-chezgi/task-tracker/internal/app"
 	"github.com/momin-chezgi/task-tracker/internal/query"
+	"github.com/momin-chezgi/task-tracker/internal/store"
 )
 
 var (
@@ -17,7 +18,6 @@ var (
 )
 
 var (
-	lessThanOneErr             = errors.New("Please give at least one parameter!")
 	invalidOptionErr           = errors.New("Please enter a valid option!")
 	incorrectNumberOfArguments = errors.New("Incorrect number of arguments!")
 )
@@ -112,11 +112,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	var tm app.TaskManager
-
-	err := tm.ProcessTheQueryAndGetTheResult(&q)
+	err := app.ProcessTheQueryAndGetTheResult(&q)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", err)
+		fmt.Fprintln(os.Stderr, "You can see the correct options and more details in help")
 		os.Exit(1)
 	}
 

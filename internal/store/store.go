@@ -70,7 +70,7 @@ func (s *Storage) Mark(stt task.Status, id int) error {
 // jsonFile overrides the default location in tests.
 var jsonFile string
 
-func dataFilePath() (string, error) {
+func DataFilePath() (string, error) {
 	if jsonFile != "" {
 		return jsonFile, nil
 	}
@@ -83,7 +83,7 @@ func dataFilePath() (string, error) {
 }
 
 func Store(strg Storage) error {
-	path, err := dataFilePath()
+	path, err := DataFilePath()
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func Store(strg Storage) error {
 }
 
 func Load() (Storage, error) {
-	path, err := dataFilePath()
+	path, err := DataFilePath()
 	if err != nil {
 		return Storage{}, err
 	}
