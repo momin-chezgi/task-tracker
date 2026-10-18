@@ -10,10 +10,7 @@ import (
 	"github.com/momin-chezgi/task-tracker/internal/task"
 )
 
-type TaskManager struct {
-}
-
-func (tm *TaskManager) ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
+func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 	storage, err := store.Load()
 	if err != nil {
 		return err
