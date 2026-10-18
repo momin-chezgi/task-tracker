@@ -13,7 +13,7 @@ import (
 
 var (
 	version     = "dev"
-	helpMessage = "\n\nTask Tracker (CLI)\n This is an application to create tasks, track them, change their status or even cancel them.\n commands are:\nadd \"[Description of the task]\"\nupdate [id] \"[The new description]\"\ncancel [id]\nmark-in-progress [id]\nmark-done [id]\nmark-todo [id]\nlist\nlist in-progress\nlist done\nlist todo\nshow [id]\n\n\n"
+	helpMessage = "\n\nTask Tracker (CLI)\n This is an application to create tasks, track them, change their status or even cancel them.\n\n commands are:\n$ add \"[Description of the task]\"\n$ update [id] \"[The new description]\"\n$ cancel [id]\n$ mark-in-progress [id]\n$ mark-done [id]\n$ mark-todo [id]\n$ list\n$ list in-progress\n$ list done\n$ list todo\n$ show [id]\n$ path\n"
 )
 
 var (
@@ -36,6 +36,14 @@ func main() {
 		os.Exit(0)
 	case "version":
 		fmt.Fprintf(os.Stdout, "Version: %v\n", version)
+		os.Exit(0)
+	case "path":
+		filePath, err := store.DataFilePath()
+		if err != nil {
+			fmt.Fprint(os.Stderr, err)
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stdout, "Where the data saved: %v", filePath)
 		os.Exit(0)
 	case "add":
 		q.Action = query.AddCommand
