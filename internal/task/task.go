@@ -32,7 +32,7 @@ func (t Task) Format() string {
 type Status int
 
 const (
-	Cancelled Status = iota + 1
+	Cancelled Status = iota - 1
 	ToDo
 	InProgress
 	Done
