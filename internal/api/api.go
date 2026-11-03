@@ -8,13 +8,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/momin-chezgi/task-tracker/internal/store"
 	"github.com/momin-chezgi/task-tracker/internal/task"
 )
 
-var tasks = make([]task.Task, 0)
 var idCounter = 0
+var tskStorage *store.Storage
 
-func Serve() {
+func Serve(tskPtr *store.Storage) {
+	tskStorage = tskPtr
+	idCounter = len(tskStorage.Tasks)
 
 	mux := http.NewServeMux()
 
@@ -28,15 +31,15 @@ func Serve() {
 		fmt.Fprintln(w, "Goodbye! See you next time!")
 	})
 
-	mux.HandleFunc("POST /tasks", addNewTask)
+	mux.HandleFunc("POST /tskStorage", addNewTask)
 
-	mux.HandleFunc("PATCH /tasks/{id}", updateTask)
+	mux.HandleFunc("PATCH /tskStorage/{id}", updateTask)
 
-	mux.HandleFunc("DELETE /tasks/{id}", cancelTask)
+	mux.HandleFunc("DELETE /tskStorage/{id}", cancelTask)
 
-	mux.HandleFunc("GET /tasks", listAllTasks)
+	mux.HandleFunc("GET /tskStorage", listAllTasks)
 
-	mux.HandleFunc("GET /tasks/{id}", showTask)
+	mux.HandleFunc("GET /tskStorage/{id}", showTask)
 
 	fmt.Println("Server listening on http://localhost:8080")
 
@@ -59,16 +62,16 @@ func sayHello(w http.ResponseWriter, r *http.Request) {
 func listAllTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	activeTasks := make([]task.Task, 0)
-	for _, rt := range tasks {
+	activetskStorage := make([]task.Task, 0)
+	for _, rt := range tskStorage.Tasks {
 		if rt.TskStatus != task.Cancelled {
-			activeTasks = append(activeTasks, rt)
+			activetskStorage = append(activetskStorage, rt)
 		}
 	}
 
 	w.WriteHeader(http.StatusOK)
 
-	if err := json.NewEncoder(w).Encode(activeTasks); err != nil {
+	if err := json.NewEncoder(w).Encode(activetskStorage); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -98,7 +101,7 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 	reqTask.CreatedAt = time.Now()
 	reqTask.UpdatedAt = time.Now()
 
-	tasks = append(tasks, reqTask)
+	tskStorage.Tasks = append(tskStorage.Tasks, reqTask)
 
 	marshaled, err := json.Marshal(reqTask)
 	if err != nil {
@@ -124,13 +127,13 @@ func showTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if tasks[id].TskStatus == task.Cancelled {
+	if tskStorage.Tasks[id].TskStatus == task.Cancelled {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	marshaled, err := json.Marshal(tasks[id])
+	marshaled, err := json.Marshal(tskStorage.Tasks[id])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -151,17 +154,17 @@ func cancelTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if tasks[id].TskStatus == task.Cancelled {
+	if tskStorage.Tasks[id].TskStatus == task.Cancelled {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	if tasks[id].TskStatus == task.Done {
+	if tskStorage.Tasks[id].TskStatus == task.Done {
 		http.Error(w, "this task has been done, you cannot mark a done task to cancelled!", http.StatusBadRequest)
 		return
 	}
 
-	tasks[id].TskStatus = task.Cancelled
+	tskStorage.Tasks[id].TskStatus = task.Cancelled
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -175,7 +178,7 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "task not found", http.StatusNotFound)
 		return
 	}
-	if tasks[id].TskStatus == task.Cancelled {
+	if tskStorage.Tasks[id].TskStatus == task.Cancelled {
 		http.Error(w, "task has been deleted", http.StatusNotFound)
 		return
 	}
@@ -211,19 +214,19 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "the title can't be empty", http.StatusBadRequest)
 			return
 		}
-		tasks[id].Title = *patch.Title
-		tasks[id].UpdatedAt = time.Now()
+		tskStorage.Tasks[id].Title = *patch.Title
+		tskStorage.Tasks[id].UpdatedAt = time.Now()
 	}
 
 	if patch.TskStatus != nil {
-		tasks[id].TskStatus = task.TskStatus(*patch.TskStatus)
-		tasks[id].UpdatedAt = time.Now()
+		tskStorage.Tasks[id].TskStatus = task.TskStatus(*patch.TskStatus)
+		tskStorage.Tasks[id].UpdatedAt = time.Now()
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 
-	if err := json.NewEncoder(w).Encode(tasks[id]); err != nil {
+	if err := json.NewEncoder(w).Encode(tskStorage.Tasks[id]); err != nil {
 		fmt.Println("encoding updated task:", err)
 	}
 
