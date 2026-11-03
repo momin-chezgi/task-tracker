@@ -26,12 +26,6 @@ func main() {
 		return
 	}
 
-	defer func() {
-		if err == nil {
-			store.Store(tskStorage)
-		}
-	}()
-
 	err = api.Serve(&tskStorage)
 	if err != nil {
 		fmt.Println("Server error:", err.Error())
