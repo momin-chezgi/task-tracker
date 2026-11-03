@@ -25,6 +25,16 @@ func main() {
 		fmt.Printf("An error occurred in the tasks loading:%s\n", err.Error())
 		return
 	}
-	api.Serve(&tskStorage)
 
+	defer func() {
+		if err == nil {
+			store.Store(tskStorage)
+		}
+	}()
+
+	err = api.Serve(&tskStorage)
+	if err != nil {
+		fmt.Println("Server error:", err.Error())
+		return
+	}
 }

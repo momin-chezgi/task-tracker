@@ -15,7 +15,7 @@ import (
 var idCounter = 0
 var tskStorage *store.Storage
 
-func Serve(tskPtr *store.Storage) {
+func Serve(tskPtr *store.Storage) error {
 	tskStorage = tskPtr
 	idCounter = len(tskStorage.Tasks)
 
@@ -45,9 +45,10 @@ func Serve(tskPtr *store.Storage) {
 
 	err := http.ListenAndServe("localhost:8080", mux)
 	if err != nil {
-		fmt.Println("Server error:", err.Error())
+		return err
 	}
 
+	return nil
 }
 
 func sayHello(w http.ResponseWriter, r *http.Request) {
