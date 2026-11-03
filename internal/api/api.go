@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/momin-chezgi/task-tracker/internal/task"
 )
@@ -93,6 +94,9 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 	idCounter++
 
 	reqTask.TskStatus = task.ToDo
+
+	reqTask.CreatedAt = time.Now()
+	reqTask.UpdatedAt = time.Now()
 
 	tasks = append(tasks, reqTask)
 
@@ -208,10 +212,12 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		tasks[id].Title = *patch.Title
+		tasks[id].UpdatedAt = time.Now()
 	}
 
 	if patch.TskStatus != nil {
 		tasks[id].TskStatus = task.TskStatus(*patch.TskStatus)
+		tasks[id].UpdatedAt = time.Now()
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
