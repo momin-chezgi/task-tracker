@@ -31,15 +31,15 @@ func Serve(tskPtr *store.Storage) error {
 		fmt.Fprintln(w, "Goodbye! See you next time!")
 	})
 
-	mux.HandleFunc("POST /tskStorage", addNewTask)
+	mux.HandleFunc("POST /tasks", addNewTask)
 
-	mux.HandleFunc("PATCH /tskStorage/{id}", updateTask)
+	mux.HandleFunc("PATCH /tasks/{id}", updateTask)
 
-	mux.HandleFunc("DELETE /tskStorage/{id}", cancelTask)
+	mux.HandleFunc("DELETE /tasks/{id}", cancelTask)
 
-	mux.HandleFunc("GET /tskStorage", listAllTasks)
+	mux.HandleFunc("GET /tasks", listAllTasks)
 
-	mux.HandleFunc("GET /tskStorage/{id}", showTask)
+	mux.HandleFunc("GET /tasks/{id}", showTask)
 
 	fmt.Println("Server listening on http://localhost:8080")
 
