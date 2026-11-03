@@ -185,8 +185,8 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var patch struct {
-		Title     *string `json:"title"`
-		TskStatus *int    `json:"completed"`
+		Title     *string         `json:"title"`
+		TskStatus *task.TskStatus `json:"task_status"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -202,7 +202,7 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if patch.TskStatus != nil {
-		switch task.TskStatus(*patch.TskStatus) {
+		switch *patch.TskStatus {
 		case task.Cancelled, task.ToDo, task.InProgress, task.Done:
 		default:
 			http.Error(w, "the given task status is invalid", http.StatusBadRequest)

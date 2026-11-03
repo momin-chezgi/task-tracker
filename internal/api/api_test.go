@@ -231,7 +231,7 @@ func TestUpdateTask(t *testing.T) {
 
 				body, err := json.Marshal(struct {
 					Title     string `json:"title"`
-					TskStatus int    `json:"completed"`
+					TskStatus int    `json:"task_status"`
 				}{
 					Title:     "changed title",
 					TskStatus: status,
@@ -301,7 +301,7 @@ func TestUpdateTask(t *testing.T) {
 
 			patch := struct {
 				Title     string         `json:"title"`
-				TskStatus task.TskStatus `json:"completed"`
+				TskStatus task.TskStatus `json:"task_status"`
 			}{
 				Title:     addingTasks[idx].Title,
 				TskStatus: addingTasks[idx].TskStatus,
