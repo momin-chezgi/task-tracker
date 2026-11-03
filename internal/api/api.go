@@ -64,6 +64,7 @@ func Serve(tskPtr *store.Storage) error {
 	select {
 	case <-ctx.Done():
 		log.Println("shutdown signal recieved, starting graceful shutdown")
+		store.Store(*tskStorage)
 	case err := <-errCh:
 		return fmt.Errorf("server error: %w", err)
 	}
@@ -142,8 +143,6 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write(marshaled)
-
-	store.Store(*tskStorage)
 }
 
 func showTask(w http.ResponseWriter, r *http.Request) {
@@ -199,7 +198,6 @@ func cancelTask(w http.ResponseWriter, r *http.Request) {
 
 	tskStorage.Tasks[id].TskStatus = task.Cancelled
 	w.WriteHeader(http.StatusOK)
-	store.Store(*tskStorage)
 }
 
 func updateTask(w http.ResponseWriter, r *http.Request) {
@@ -259,7 +257,6 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	store.Store(*tskStorage)
 
 	if err := json.NewEncoder(w).Encode(tskStorage.Tasks[id]); err != nil {
 		fmt.Println("encoding updated task:", err)
