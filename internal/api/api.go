@@ -1,11 +1,16 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/momin-chezgi/task-tracker/internal/store"
@@ -22,31 +27,56 @@ func Serve(tskPtr *store.Storage) error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/hello", sayHello)
-
 	mux.HandleFunc("/about", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "This is my first API.")
 	})
-
 	mux.HandleFunc("/goodbye", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Goodbye! See you next time!")
 	})
-
 	mux.HandleFunc("POST /tasks", addNewTask)
-
 	mux.HandleFunc("PATCH /tasks/{id}", updateTask)
-
 	mux.HandleFunc("DELETE /tasks/{id}", cancelTask)
-
 	mux.HandleFunc("GET /tasks", listAllTasks)
-
 	mux.HandleFunc("GET /tasks/{id}", showTask)
 
-	fmt.Println("Server listening on http://localhost:8080")
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
 
-	err := http.ListenAndServe("localhost:8080", mux)
-	if err != nil {
-		return err
+	srv := &http.Server{
+		Addr:              "localhost:8080",
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
+
+	errCh := make(chan error, 1)
+	go func() {
+		fmt.Println("Server listening on http://localhost:8080")
+		err := srv.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			errCh <- err
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		log.Println("shutdown signal recieved, starting graceful shutdown")
+	case err := <-errCh:
+		return fmt.Errorf("server error: %w", err)
+	}
+
+	shutdownctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err := srv.Shutdown(shutdownctx)
+	if err != nil {
+		return fmt.Errorf("graceful shutdown failed: %w", err)
+	}
+
+	log.Println("server stopped gracefully")
 
 	return nil
 }
