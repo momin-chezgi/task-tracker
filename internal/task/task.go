@@ -7,11 +7,11 @@ import (
 )
 
 type Task struct {
-	ID          int       `json:"id"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Status      Status    `json:"status"`
+	ID        int       `json:"id"`
+	Title     string    `json:"Title"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	TskStatus TskStatus `json:"TskStatus"`
 }
 
 var (
@@ -26,19 +26,19 @@ var (
 )
 
 func (t Task) Format() string {
-	return fmt.Sprintf(taskFormattingTemplate, t.Description, t.Status, t.ID, t.CreatedAt, t.UpdatedAt)
+	return fmt.Sprintf(taskFormattingTemplate, t.Title, t.TskStatus, t.ID, t.CreatedAt, t.UpdatedAt)
 }
 
-type Status int
+type TskStatus int
 
 const (
-	Cancelled Status = iota - 1
+	Cancelled TskStatus = iota - 1
 	ToDo
 	InProgress
 	Done
 )
 
-func (stt Status) String() string {
+func (stt TskStatus) String() string {
 	switch stt {
 	case Cancelled:
 		return "Cancelled"
@@ -52,7 +52,7 @@ func (stt Status) String() string {
 	return "None of them"
 }
 
-func StrToStatus(s string) (Status, error) {
+func StrToTskStatus(s string) (TskStatus, error) {
 	switch s {
 	case "mark-in-progress":
 		return InProgress, nil
@@ -67,6 +67,6 @@ func StrToStatus(s string) (Status, error) {
 	case "done":
 		return Done, nil
 	default:
-		return ToDo, errors.New("Invalid status given")
+		return ToDo, errors.New("Invalid TskStatus given")
 	}
 }

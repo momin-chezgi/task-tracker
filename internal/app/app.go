@@ -43,7 +43,7 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 		err = storage.Cancel(id)
 		return err
 	case query.MarkCommand:
-		stt, err := task.StrToStatus(q.Arg1)
+		stt, err := task.StrToTskStatus(q.Arg1)
 		if err != nil {
 			return err
 		}
@@ -56,17 +56,17 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 	case query.ListCommand:
 		if q.Arg1 == "" {
 			for _, t := range storage.Tasks {
-				if t.Status != task.Cancelled {
+				if t.TskStatus != task.Cancelled {
 					q.Output = append(q.Output, t.Format())
 				}
 			}
 		} else {
-			stt, err := task.StrToStatus(q.Arg1)
+			stt, err := task.StrToTskStatus(q.Arg1)
 			if err != nil {
 				return err
 			}
 			for _, t := range storage.Tasks {
-				if t.Status == stt {
+				if t.TskStatus == stt {
 					q.Output = append(q.Output, t.Format())
 				}
 			}

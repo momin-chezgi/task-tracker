@@ -16,20 +16,20 @@ type Storage struct {
 }
 
 var (
-	EmptyDescriptionErr error = errors.New("An empty string can't be the name of a task!")
-	InvalidIDErr        error = errors.New("The ID of the task is out of range!")
+	EmptyTitleErr error = errors.New("An empty string can't be the name of a task!")
+	InvalidIDErr  error = errors.New("The ID of the task is out of range!")
 )
 
 func (s *Storage) Add(dsc string) (int, error) {
 	if dsc == "" {
-		return -1, EmptyDescriptionErr
+		return -1, EmptyTitleErr
 	}
 	newTask := task.Task{
-		ID:          len(s.Tasks) + 1,
-		Description: dsc,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-		Status:      task.ToDo,
+		ID:        len(s.Tasks) + 1,
+		Title:     dsc,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		TskStatus: task.ToDo,
 	}
 	s.Tasks = append(s.Tasks, newTask)
 	return newTask.ID, nil
@@ -37,12 +37,12 @@ func (s *Storage) Add(dsc string) (int, error) {
 
 func (s *Storage) Update(id int, dsc string) error {
 	if dsc == "" {
-		return EmptyDescriptionErr
+		return EmptyTitleErr
 	}
 	if id <= 0 || id > len(s.Tasks) {
 		return InvalidIDErr
 	}
-	s.Tasks[id-1].Description = dsc
+	s.Tasks[id-1].Title = dsc
 	s.Tasks[id-1].UpdatedAt = time.Now()
 	return nil
 }
@@ -52,18 +52,18 @@ func (s *Storage) Cancel(id int) error {
 		return InvalidIDErr
 	}
 
-	s.Tasks[id-1].Status = task.Cancelled
+	s.Tasks[id-1].TskStatus = task.Cancelled
 	return nil
 }
 
-func (s *Storage) Mark(stt task.Status, id int) error {
+func (s *Storage) Mark(stt task.TskStatus, id int) error {
 	if id <= 0 || id > len(s.Tasks) {
 		return InvalidIDErr
 	}
-	if s.Tasks[id-1].Status == task.Cancelled {
+	if s.Tasks[id-1].TskStatus == task.Cancelled {
 		return errors.New("This task has been cancelled!")
 	}
-	s.Tasks[id-1].Status = stt
+	s.Tasks[id-1].TskStatus = stt
 	return nil
 }
 

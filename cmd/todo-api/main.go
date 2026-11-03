@@ -14,7 +14,7 @@ import (
 
 var (
 	version     = "dev"
-	helpMessage = "\n\nTask Tracker (CLI)\n This is an application to create tasks, track them, change their status or even cancel them.\n\n commands are:\n$ add \"[Description of the task]\"\n$ update [id] \"[The new description]\"\n$ cancel [id]\n$ mark-in-progress [id]\n$ mark-done [id]\n$ mark-todo [id]\n$ list\n$ list in-progress\n$ list done\n$ list todo\n$ show [id]\n$ path\n"
+	helpMessage = "\n\nTask Tracker (CLI)\n This is an application to create tasks, track them, change their status or even cancel them.\n\n commands are:\n$ add \"[Title of the task]\"\n$ update [id] \"[The new Title]\"\n$ cancel [id]\n$ mark-in-progress [id]\n$ mark-done [id]\n$ mark-todo [id]\n$ list\n$ list in-progress\n$ list done\n$ list todo\n$ show [id]\n$ path\n"
 )
 
 var (

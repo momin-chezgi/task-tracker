@@ -15,18 +15,18 @@ func newTestStorage() Storage {
 	return Storage{
 		Tasks: []task.Task{
 			{
-				ID:          1,
-				Description: "Coding the project",
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
-				Status:      task.InProgress,
+				ID:        1,
+				Title:     "Coding the project",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+				TskStatus: task.InProgress,
 			},
 			{
-				ID:          2,
-				Description: "Contact to Saba steel company",
-				CreatedAt:   time.Now().AddDate(0, 0, -28),
-				UpdatedAt:   time.Now(),
-				Status:      task.ToDo,
+				ID:        2,
+				Title:     "Contact to Saba steel company",
+				CreatedAt: time.Now().AddDate(0, 0, -28),
+				UpdatedAt: time.Now(),
+				TskStatus: task.ToDo,
 			},
 		},
 	}
@@ -67,15 +67,15 @@ func TestDataFilePathUsesUserConfigDir(t *testing.T) {
 }
 
 func TestAdd(t *testing.T) {
-	t.Run("Empty_description", func(t *testing.T) {
+	t.Run("Empty_Title", func(t *testing.T) {
 		storage := Storage{}
 		_, err := storage.Add("")
-		if err != EmptyDescriptionErr {
-			t.Errorf("An empty string can't be the description of a task!")
+		if err != EmptyTitleErr {
+			t.Errorf("An empty string can't be the Title of a task!")
 		}
 	})
 
-	t.Run("Task_with_an_ordinary_description", func(t *testing.T) {
+	t.Run("Task_with_an_ordinary_Title", func(t *testing.T) {
 		storage := newTestStorage()
 		newID, err := storage.Add("Arrange a meeting with my friend")
 		if err != nil {
@@ -99,10 +99,10 @@ func TestUpdate(t *testing.T) {
 		})
 	}
 
-	t.Run("Empty_description", func(t *testing.T) {
+	t.Run("Empty_Title", func(t *testing.T) {
 		err := storage.Update(1, "")
-		if err != EmptyDescriptionErr {
-			t.Errorf("An empty string can't be the description of a task!")
+		if err != EmptyTitleErr {
+			t.Errorf("An empty string can't be the Title of a task!")
 		}
 	})
 
@@ -112,8 +112,8 @@ func TestUpdate(t *testing.T) {
 		if err != nil {
 			t.Errorf("Can't update successfuly: %v", err)
 		}
-		if storage.Tasks[id].Description != "This is an updated task" {
-			t.Errorf("Can't update the description. Got: %v, want: This is an updated task", storage.Tasks[id].Description)
+		if storage.Tasks[id].Title != "This is an updated task" {
+			t.Errorf("Can't update the Title. Got: %v, want: This is an updated task", storage.Tasks[id].Title)
 		}
 		if storage.Tasks[id].UpdatedAt.Equal(lastUpdate) {
 			t.Errorf("The updated time of the Task has not been updated")
@@ -136,24 +136,24 @@ func TestMark(t *testing.T) {
 		if err := storage.Mark(task.ToDo, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the ToDo flag")
 		}
-		if storage.Tasks[0].Status != task.ToDo {
-			t.Errorf("The task wasn't marked successfully; Got: %v, want: ToDo", storage.Tasks[0].Status.String())
+		if storage.Tasks[0].TskStatus != task.ToDo {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: ToDo", storage.Tasks[0].TskStatus.String())
 		}
 	})
 	t.Run("Mark_as_inProgress:#1", func(t *testing.T) {
 		if err := storage.Mark(task.InProgress, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the InProgres flag")
 		}
-		if storage.Tasks[0].Status != task.InProgress {
-			t.Errorf("The task wasn't marked successfully; Got: %v, want: InProgress", storage.Tasks[0].Status.String())
+		if storage.Tasks[0].TskStatus != task.InProgress {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: InProgress", storage.Tasks[0].TskStatus.String())
 		}
 	})
 	t.Run("Mark_as_done:#1", func(t *testing.T) {
 		if err := storage.Mark(task.Done, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the Done flag")
 		}
-		if storage.Tasks[0].Status != task.Done {
-			t.Errorf("The task wasn't marked successfully; Got: %v, want: Done", storage.Tasks[0].Status.String())
+		if storage.Tasks[0].TskStatus != task.Done {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: Done", storage.Tasks[0].TskStatus.String())
 		}
 	})
 
@@ -161,8 +161,8 @@ func TestMark(t *testing.T) {
 		if err := storage.Mark(task.Cancelled, 1); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the Cancelled flag")
 		}
-		if storage.Tasks[0].Status != task.Cancelled {
-			t.Errorf("The task wasn't marked successfully; Got: %v, want: Cancelled", storage.Tasks[0].Status.String())
+		if storage.Tasks[0].TskStatus != task.Cancelled {
+			t.Errorf("The task wasn't marked successfully; Got: %v, want: Cancelled", storage.Tasks[0].TskStatus.String())
 		}
 	})
 
@@ -183,7 +183,7 @@ func TestCancel(t *testing.T) {
 		if err != nil {
 			t.Fatalf("An error occurred while deleting a task: %v", err)
 		}
-		if storage.Tasks[0].Status != task.Cancelled {
+		if storage.Tasks[0].TskStatus != task.Cancelled {
 			t.Errorf("The task #1 was not Canceld!")
 		}
 	})
@@ -197,18 +197,18 @@ func TestStoreAndLoad(t *testing.T) {
 		{
 			Tasks: []task.Task{
 				{
-					ID:          1,
-					Description: "Nothin here!",
-					CreatedAt:   time.Now(),
-					UpdatedAt:   time.Now(),
-					Status:      task.InProgress,
+					ID:        1,
+					Title:     "Nothin here!",
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+					TskStatus: task.InProgress,
 				},
 				{
-					ID:          2,
-					Description: "Get the driving license",
-					CreatedAt:   time.Now(),
-					UpdatedAt:   time.Now().Local().AddDate(1, 1, 0),
-					Status:      task.Done,
+					ID:        2,
+					Title:     "Get the driving license",
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now().Local().AddDate(1, 1, 0),
+					TskStatus: task.Done,
 				},
 			},
 		},
