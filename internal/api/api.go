@@ -135,6 +135,8 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 
 	tskStorage.Tasks = append(tskStorage.Tasks, reqTask)
 
+	store.Store(*tskStorage)
+
 	marshaled, err := json.Marshal(reqTask)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -197,6 +199,8 @@ func cancelTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tskStorage.Tasks[id].TskStatus = task.Cancelled
+	store.Store(*tskStorage)
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -254,6 +258,8 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 		tskStorage.Tasks[id].TskStatus = task.TskStatus(*patch.TskStatus)
 		tskStorage.Tasks[id].UpdatedAt = time.Now()
 	}
+
+	store.Store(*tskStorage)
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
