@@ -1,8 +1,5 @@
 package api
 
-// Add a case for PATCH (updating a task) to validate the given status
-// Add a case for DELETE (cancelling a task) to avoid cancelling a done task
-
 import (
 	"bytes"
 	"encoding/json"
@@ -490,6 +487,23 @@ func TestCancelTask(t *testing.T) {
 		}
 		if tasks[0] != taskSnapshot {
 			t.Errorf("Task#0 shouldn't have changed after repeated cancellation.")
+		}
+	})
+
+	t.Run("Don't cancel a DONE task", func(t *testing.T) {
+		resetTaskStore(t)
+		addASampleTaskJustForTesting(t)
+
+		req := httptest.NewRequest(http.MethodDelete, "/tasks", nil)
+		req.SetPathValue("id", "0")
+		rr := httptest.NewRecorder()
+
+		tasks[0].TskStatus = task.Done
+
+		cancelTask(rr, req)
+		if rr.Code != http.StatusBadRequest {
+			t.Errorf("Done tasks can't be deleted, http status got:%v, want:%v",
+				rr.Code, http.StatusBadRequest)
 		}
 	})
 }
