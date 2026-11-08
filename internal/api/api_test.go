@@ -516,7 +516,7 @@ func TestListAllTasks(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/tasks", nil)
 		rr := httptest.NewRecorder()
 
-		listAllTasks(rr, req)
+		listTasks(rr, req)
 
 		if rr.Code != http.StatusOK {
 			t.Fatalf("expected status %d, got %d",
@@ -547,7 +547,7 @@ func TestListAllTasks(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/tasks", nil)
 		rr := httptest.NewRecorder()
 
-		listAllTasks(rr, req)
+		listTasks(rr, req)
 
 		if rr.Code != http.StatusOK {
 			t.Fatalf("expected status %d, got %d",
@@ -576,6 +576,88 @@ func TestListAllTasks(t *testing.T) {
 				t.Errorf("task %d: expected %+v, got %+v",
 					i, expectedTask, responseTasks[i])
 			}
+		}
+	})
+}
+
+func TestFilterTasks(t *testing.T) {
+	t.Run("returns an empty array when no tasks exist", func(t *testing.T) {
+		resetTaskStore(t)
+
+		req := httptest.NewRequest(http.MethodGet, "/tasks?marked_as=todo", nil)
+		rr := httptest.NewRecorder()
+
+		listTasks(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected status %d, got %d",
+				http.StatusOK, rr.Code)
+		}
+		if contentType := rr.Header().Get("Content-Type"); contentType != "application/json; charset=utf-8" {
+			t.Errorf("expected content type %q, got %q",
+				"application/json; charset=utf-8", contentType)
+		}
+
+		var responseTasks []task.Task
+		if err := json.Unmarshal(rr.Body.Bytes(), &responseTasks); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+		if responseTasks == nil || len(responseTasks) != 0 {
+			t.Errorf("expected an empty array, got %v", responseTasks)
+		}
+	})
+
+	t.Run("returns only tasks matching the requested filter", func(t *testing.T) {
+		resetTaskStore(t)
+		tskStorage.Tasks = []task.Task{
+			{ID: 0, Title: "first todo", TskStatus: task.ToDo},
+			{ID: 1, Title: "second done", TskStatus: task.Done},
+			{ID: 2, Title: "third in progress", TskStatus: task.InProgress},
+			{ID: 3, Title: "fourth todo", TskStatus: task.ToDo},
+			{ID: 4, Title: "fifth cancelled", TskStatus: task.Cancelled},
+		}
+
+		req := httptest.NewRequest(http.MethodGet, "/tasks?marked_as=todo", nil)
+		rr := httptest.NewRecorder()
+
+		listTasks(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected status %d, got %d",
+				http.StatusOK, rr.Code)
+		}
+
+		var responseTasks []task.Task
+		if err := json.Unmarshal(rr.Body.Bytes(), &responseTasks); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+
+		expectedTasks := []task.Task{
+			{ID: 0, Title: "first todo", TskStatus: task.ToDo},
+			{ID: 3, Title: "fourth todo", TskStatus: task.ToDo},
+		}
+		if len(responseTasks) != len(expectedTasks) {
+			t.Fatalf("expected %d tasks, got %d", len(expectedTasks), len(responseTasks))
+		}
+		for i, expectedTask := range expectedTasks {
+			if responseTasks[i] != expectedTask {
+				t.Errorf("task %d: expected %+v, got %+v", i, expectedTask, responseTasks[i])
+			}
+		}
+	})
+
+	t.Run("rejects an invalid filter value", func(t *testing.T) {
+		resetTaskStore(t)
+		tskStorage.Tasks = []task.Task{{ID: 0, Title: "todo task", TskStatus: task.ToDo}}
+
+		req := httptest.NewRequest(http.MethodGet, "/tasks?marked_as=not-a-status", nil)
+		rr := httptest.NewRecorder()
+
+		listTasks(rr, req)
+
+		if rr.Code != http.StatusBadRequest {
+			t.Fatalf("expected status %d, got %d",
+				http.StatusBadRequest, rr.Code)
 		}
 	})
 }

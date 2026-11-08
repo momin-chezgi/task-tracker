@@ -21,6 +21,7 @@ var (
  + update them [PATCH /tasks/{id}]\n
  + cancel them [DELETE /tasks/{id}]\n
  + list them [GET /tasks]\n
+ + filter tasks by their status(todo, in-progress, done) [GET /tasks?marked_as=[The filtering status]]
  + show a specific task by its ID [GET /tasks/{id}]\n`
 )
 
@@ -48,7 +49,7 @@ func Serve(tskPtr *store.Storage) error {
 	mux.HandleFunc("POST /tasks", addNewTask)
 	mux.HandleFunc("PATCH /tasks/{id}", updateTask)
 	mux.HandleFunc("DELETE /tasks/{id}", cancelTask)
-	mux.HandleFunc("GET /tasks", listAllTasks)
+	mux.HandleFunc("GET /tasks", listTasks)
 	mux.HandleFunc("GET /tasks/{id}", showTask)
 
 	ctx, stop := signal.NotifyContext(

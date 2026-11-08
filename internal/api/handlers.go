@@ -22,13 +22,30 @@ func sayHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "name: "+name)
 }
 
-func listAllTasks(w http.ResponseWriter, r *http.Request) {
+func listTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	activetskStorage := make([]task.Task, 0)
-	for _, rt := range tskStorage.Tasks {
-		if rt.TskStatus != task.Cancelled {
-			activetskStorage = append(activetskStorage, rt)
+
+	var filterStt task.TskStatus
+
+	filterStr := r.URL.Query().Get("marked_as")
+
+	if filterStr != "" {
+		var err error
+		if filterStt, err = task.StrToTskStatus(filterStr); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+		for _, rt := range tskStorage.Tasks {
+			if rt.TskStatus == filterStt {
+				activetskStorage = append(activetskStorage, rt)
+			}
+		}
+	} else {
+		for _, rt := range tskStorage.Tasks {
+			if rt.TskStatus != task.Cancelled {
+				activetskStorage = append(activetskStorage, rt)
+			}
 		}
 	}
 
