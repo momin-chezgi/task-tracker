@@ -13,8 +13,21 @@ import (
 	"github.com/momin-chezgi/task-tracker/internal/store"
 )
 
-var idCounter = 0
-var tskStorage *store.Storage
+var (
+	helpMessage = `\n\nTask Tracker (API)\n
+ This is an application to create tasks, track them, change their status or even cancel them.\n\n
+ You can...\n
+ + add a new task [POST /tasks]\n
+ + update them [PATCH /tasks/{id}]\n
+ + cancel them [DELETE /tasks/{id}]\n
+ + list them [GET /tasks]\n
+ + show a specific task by its ID [GET /tasks/{id}]\n`
+)
+
+var (
+	idCounter  = 0
+	tskStorage *store.Storage
+)
 
 func Serve(tskPtr *store.Storage) error {
 	tskStorage = tskPtr
@@ -28,6 +41,9 @@ func Serve(tskPtr *store.Storage) error {
 	})
 	mux.HandleFunc("/goodbye", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Goodbye! See you next time!")
+	})
+	mux.HandleFunc("/help", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, helpMessage)
 	})
 	mux.HandleFunc("POST /tasks", addNewTask)
 	mux.HandleFunc("PATCH /tasks/{id}", updateTask)

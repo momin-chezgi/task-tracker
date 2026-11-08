@@ -15,7 +15,6 @@ var (
 )
 
 var (
-	// lessThanOneErr             = errors.New("Please give at least one parameter!")
 	invalidOptionErr           = errors.New("Please enter a valid option!")
 	incorrectNumberOfArguments = errors.New("Incorrect number of arguments!")
 )
