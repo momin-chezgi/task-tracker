@@ -80,10 +80,10 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 		if err != nil {
 			return err
 		}
-		if id <= 0 || id > len(storage.Tasks) {
+		if id < 0 || id >= len(storage.Tasks) {
 			return store.InvalidIDErr
 		}
-		q.Output = []string{storage.Tasks[id-1].Format()}
+		q.Output = []string{storage.Tasks[id].Format()}
 	default:
 		return errors.New("Invalid action")
 	}

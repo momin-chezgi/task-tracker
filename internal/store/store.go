@@ -39,31 +39,31 @@ func (s *Storage) Update(id int, dsc string) error {
 	if dsc == "" {
 		return EmptyTitleErr
 	}
-	if id <= 0 || id > len(s.Tasks) {
+	if id < 0 || id > len(s.Tasks) {
 		return InvalidIDErr
 	}
-	s.Tasks[id-1].Title = dsc
-	s.Tasks[id-1].UpdatedAt = time.Now()
+	s.Tasks[id].Title = dsc
+	s.Tasks[id].UpdatedAt = time.Now()
 	return nil
 }
 
 func (s *Storage) Cancel(id int) error {
-	if id <= 0 || id > len(s.Tasks) {
+	if id < 0 || id > len(s.Tasks) {
 		return InvalidIDErr
 	}
 
-	s.Tasks[id-1].TskStatus = task.Cancelled
+	s.Tasks[id].TskStatus = task.Cancelled
 	return nil
 }
 
 func (s *Storage) Mark(stt task.TskStatus, id int) error {
-	if id <= 0 || id > len(s.Tasks) {
+	if id < 0 || id > len(s.Tasks) {
 		return InvalidIDErr
 	}
-	if s.Tasks[id-1].TskStatus == task.Cancelled {
+	if s.Tasks[id].TskStatus == task.Cancelled {
 		return errors.New("This task has been cancelled!")
 	}
-	s.Tasks[id-1].TskStatus = stt
+	s.Tasks[id].TskStatus = stt
 	return nil
 }
 

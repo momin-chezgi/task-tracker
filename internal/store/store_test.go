@@ -32,7 +32,7 @@ func newTestStorage() Storage {
 	}
 }
 
-var outOfRangeIDs = []int{-1, 0, 10000000, -2938973132}
+var outOfRangeIDs = []int{-1, 10000000, -2, -2938973132}
 
 func useTempJSONFile(t *testing.T) {
 	t.Helper()
@@ -108,7 +108,7 @@ func TestUpdate(t *testing.T) {
 
 	for id := 0; id < len(storage.Tasks); id++ {
 		lastUpdate := storage.Tasks[id].UpdatedAt
-		err := storage.Update(id+1, "This is an updated task")
+		err := storage.Update(id, "This is an updated task")
 		if err != nil {
 			t.Errorf("Can't update successfuly: %v", err)
 		}
@@ -133,7 +133,7 @@ func TestMark(t *testing.T) {
 	}
 
 	t.Run("Mark_as_ToDo:#1", func(t *testing.T) {
-		if err := storage.Mark(task.ToDo, 1); err != nil {
+		if err := storage.Mark(task.ToDo, 0); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the ToDo flag")
 		}
 		if storage.Tasks[0].TskStatus != task.ToDo {
@@ -141,15 +141,15 @@ func TestMark(t *testing.T) {
 		}
 	})
 	t.Run("Mark_as_inProgress:#1", func(t *testing.T) {
-		if err := storage.Mark(task.InProgress, 1); err != nil {
+		if err := storage.Mark(task.InProgress, 0); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the InProgres flag")
 		}
 		if storage.Tasks[0].TskStatus != task.InProgress {
 			t.Errorf("The task wasn't marked successfully; Got: %v, want: InProgress", storage.Tasks[0].TskStatus.String())
 		}
 	})
-	t.Run("Mark_as_done:#1", func(t *testing.T) {
-		if err := storage.Mark(task.Done, 1); err != nil {
+	t.Run("Mark_as_done:#0", func(t *testing.T) {
+		if err := storage.Mark(task.Done, 0); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the Done flag")
 		}
 		if storage.Tasks[0].TskStatus != task.Done {
@@ -158,7 +158,7 @@ func TestMark(t *testing.T) {
 	})
 
 	t.Run("Mark_as_cancelled:#1", func(t *testing.T) {
-		if err := storage.Mark(task.Cancelled, 1); err != nil {
+		if err := storage.Mark(task.Cancelled, 0); err != nil {
 			t.Errorf("An error occurred while marking task #1 to the Cancelled flag")
 		}
 		if storage.Tasks[0].TskStatus != task.Cancelled {
@@ -179,7 +179,7 @@ func TestCancel(t *testing.T) {
 		})
 	}
 	t.Run("Cancel_the_first_task", func(t *testing.T) {
-		err := storage.Cancel(1)
+		err := storage.Cancel(0)
 		if err != nil {
 			t.Fatalf("An error occurred while deleting a task: %v", err)
 		}
@@ -197,14 +197,14 @@ func TestStoreAndLoad(t *testing.T) {
 		{
 			Tasks: []task.Task{
 				{
-					ID:        1,
+					ID:        0,
 					Title:     "Nothin here!",
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 					TskStatus: task.InProgress,
 				},
 				{
-					ID:        2,
+					ID:        1,
 					Title:     "Get the driving license",
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now().Local().AddDate(1, 1, 0),
