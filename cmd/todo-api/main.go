@@ -25,4 +25,11 @@ func main() {
 		fmt.Println("Server error:", err.Error())
 		return
 	}
+	defer func() {
+		err := store.Store(tskStorage)
+		if err != nil {
+			fmt.Printf("An error occurred in the tasks saving:%s\n", err.Error())
+		}
+	}()
+	fmt.Printf("Task Tracker (API) version %s\n", version)
 }
