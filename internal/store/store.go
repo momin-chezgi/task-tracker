@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"os/user"
 	"path/filepath"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 
 type Storage struct {
 	Tasks []task.Task
+	Users []user.User
 }
 
 var (

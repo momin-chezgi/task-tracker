@@ -98,15 +98,31 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 	w.Write(marshaled)
 }
 
-type User struct {
-	ID       int    `json:"ID"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func registerUser(w http.ResponseWriter, r *http.Request) {
+	var patch struct {
+		Name     *string `json:"name"`
+		Email    *string `json:"email"`
+		Password *string `json:"password"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&patch); err != nil {
+		writeJSONError(w, http.StatusBadRequest, "invalid JSON: "+err.Error())
+		return
+	}
 
+	if patch.Name == nil || strings.TrimSpace(*patch.Name) == "" {
+		writeJSONError(w, http.StatusBadRequest, "provide a name for the new user")
+		return
+	}
+	if patch.Email == nil || strings.TrimSpace(*patch.Email) == "" {
+		writeJSONError(w, http.StatusBadRequest, "provide an email for the new user")
+		return
+	}
+	if patch.Password == nil || strings.TrimSpace(*patch.Password) == "" {
+		writeJSONError(w, http.StatusBadRequest, "provide me a password for the new user")
+		return
+	}
 }
 
 func showTask(w http.ResponseWriter, r *http.Request) {

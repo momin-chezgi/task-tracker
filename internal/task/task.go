@@ -12,6 +12,7 @@ type Task struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	TskStatus TskStatus `json:"TskStatus"`
+	UserID    int       `json:"user_id"`
 }
 
 var (
