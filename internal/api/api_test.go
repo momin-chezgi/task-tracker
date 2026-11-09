@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strconv"
 	"testing"
 
@@ -107,8 +108,8 @@ func TestAddNewTask(t *testing.T) {
 				http.StatusBadRequest, rr.Code)
 		}
 
-		expected := "The title can't be empty!\n"
-		if rr.Body.String() != expected {
+		expected := json.RawMessage(`{"error":"The title can't be empty!"}` + "\n")
+		if reflect.DeepEqual(rr.Body.Bytes(), []byte(expected)) {
 			t.Errorf("expected body %q, got %q",
 				expected, rr.Body.String())
 		}

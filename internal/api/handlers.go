@@ -34,7 +34,7 @@ func listTasks(w http.ResponseWriter, r *http.Request) {
 	if filterStr != "" {
 		var err error
 		if filterStt, err = task.StrToTskStatus(filterStr); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			writeJSONError(w, http.StatusBadRequest, "invalid task status: "+err.Error())
 		}
 		for _, rt := range tskStorage.Tasks {
 			if rt.TskStatus == filterStt {
@@ -52,7 +52,8 @@ func listTasks(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(activetskStorage); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		log.Printf("encoding tasks: %v\n", err)
 		return
 	}
 
@@ -64,12 +65,12 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 	var reqTask task.Task
 
 	if err := json.NewDecoder(r.Body).Decode(&reqTask); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		writeJSONError(w, http.StatusBadRequest, "invalid JSON: "+err.Error())
 		return
 	}
 
 	if strings.TrimSpace(reqTask.Title) == "" {
-		http.Error(w, "The title can't be empty!", http.StatusBadRequest)
+		writeJSONError(w, http.StatusBadRequest, "The title can't be empty!")
 		return
 	}
 
@@ -89,7 +90,7 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 
 	marshaled, err := json.Marshal(reqTask)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -102,24 +103,24 @@ func showTask(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		writeJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if id < 0 || id >= idCounter {
-		w.WriteHeader(http.StatusNotFound)
+		writeJSONError(w, http.StatusNotFound, "id is out of the range")
 		return
 	}
 
 	if tskStorage.Tasks[id].TskStatus == task.Cancelled {
-		w.WriteHeader(http.StatusNotFound)
+		writeJSONError(w, http.StatusNotFound, "this task has been cancelled")
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	marshaled, err := json.Marshal(tskStorage.Tasks[id])
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	w.Write(marshaled)
@@ -129,22 +130,22 @@ func cancelTask(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		writeJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if id < 0 || id >= idCounter {
-		w.WriteHeader(http.StatusNotFound)
+		writeJSONError(w, http.StatusNotFound, "id is out of the range")
 		return
 	}
 
 	if tskStorage.Tasks[id].TskStatus == task.Cancelled {
-		w.WriteHeader(http.StatusNotFound)
+		writeJSONError(w, http.StatusNotFound, "this task has been cancelled")
 		return
 	}
 
 	if tskStorage.Tasks[id].TskStatus == task.Done {
-		http.Error(w, "this task has been done, you cannot mark a done task to cancelled!", http.StatusBadRequest)
+		writeJSONError(w, http.StatusBadRequest, "this task has been done, you cannot mark a done task to cancelled!")
 		return
 	}
 
@@ -159,15 +160,15 @@ func cancelTask(w http.ResponseWriter, r *http.Request) {
 func updateTask(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, "invalid task ID: "+err.Error(), http.StatusBadRequest)
+		writeJSONError(w, http.StatusBadRequest, "invalid task ID: "+err.Error())
 		return
 	}
 	if id < 0 || id >= idCounter {
-		http.Error(w, "task not found", http.StatusNotFound)
+		writeJSONError(w, http.StatusNotFound, "task not found")
 		return
 	}
 	if tskStorage.Tasks[id].TskStatus == task.Cancelled {
-		http.Error(w, "task has been deleted", http.StatusNotFound)
+		writeJSONError(w, http.StatusNotFound, "task has been deleted")
 		return
 	}
 
@@ -179,12 +180,12 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&patch); err != nil {
-		http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
+		writeJSONError(w, http.StatusBadRequest, "invalid JSON: "+err.Error())
 		return
 	}
 
 	if patch.Title == nil && patch.TskStatus == nil {
-		http.Error(w, "provide at least one field to update", http.StatusBadRequest)
+		writeJSONError(w, http.StatusBadRequest, "provide at least one field to update")
 		return
 	}
 
@@ -192,14 +193,14 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 		switch *patch.TskStatus {
 		case task.Cancelled, task.ToDo, task.InProgress, task.Done:
 		default:
-			http.Error(w, "the given task status is invalid", http.StatusBadRequest)
+			writeJSONError(w, http.StatusBadRequest, "the given task status is invalid")
 			return
 		}
 	}
 
 	if patch.Title != nil {
 		if strings.TrimSpace(*patch.Title) == "" {
-			http.Error(w, "the title can't be empty", http.StatusBadRequest)
+			writeJSONError(w, http.StatusBadRequest, "the title can't be empty")
 			return
 		}
 		tskStorage.Tasks[id].Title = *patch.Title
@@ -222,4 +223,14 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("encoding updated task:", err)
 	}
 
+}
+
+type errorResponse struct {
+	Error string `json:"error"`
+}
+
+func writeJSONError(w http.ResponseWriter, status int, msg string) {
+	w.WriteHeader(status)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(w).Encode(errorResponse{Error: msg})
 }
