@@ -35,6 +35,7 @@ func listTasks(w http.ResponseWriter, r *http.Request) {
 		var err error
 		if filterStt, err = task.StrToTskStatus(filterStr); err != nil {
 			writeJSONError(w, http.StatusBadRequest, "invalid task status: "+err.Error())
+			return
 		}
 		for _, rt := range tskStorage.Tasks {
 			if rt.TskStatus == filterStt {
@@ -49,13 +50,12 @@ func listTasks(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.WriteHeader(http.StatusOK)
-
 	if err := json.NewEncoder(w).Encode(activetskStorage); err != nil {
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		log.Printf("encoding tasks: %v\n", err)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 
 }
 
@@ -230,7 +230,7 @@ type errorResponse struct {
 }
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
-	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(errorResponse{Error: msg})
 }

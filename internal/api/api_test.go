@@ -109,7 +109,7 @@ func TestAddNewTask(t *testing.T) {
 		}
 
 		expected := json.RawMessage(`{"error":"The title can't be empty!"}` + "\n")
-		if reflect.DeepEqual(rr.Body.Bytes(), []byte(expected)) {
+		if !reflect.DeepEqual(rr.Body.Bytes(), []byte(expected)) {
 			t.Errorf("expected body %q, got %q",
 				expected, rr.Body.String())
 		}
