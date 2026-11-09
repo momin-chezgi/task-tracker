@@ -47,6 +47,7 @@ func Serve(tskPtr *store.Storage) error {
 		fmt.Fprintln(w, helpMessage)
 	})
 	mux.HandleFunc("POST /tasks", addNewTask)
+	mux.HandleFunc("POST /register", registerUser)
 	mux.HandleFunc("PATCH /tasks/{id}", updateTask)
 	mux.HandleFunc("DELETE /tasks/{id}", cancelTask)
 	mux.HandleFunc("GET /tasks", listTasks)

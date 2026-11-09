@@ -98,6 +98,8 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 	w.Write(marshaled)
 }
 
+func registerUser(w http.ResponseWriter, r *http.Request) {}
+
 func showTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	idStr := r.PathValue("id")
