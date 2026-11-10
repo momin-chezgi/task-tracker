@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
-	"os/user"
 	"path/filepath"
 	"time"
+
+	"github.com/momin-chezgi/task-tracker/internal/user"
 
 	"github.com/momin-chezgi/task-tracker/internal/task"
 )
@@ -22,13 +23,31 @@ var (
 	InvalidIDErr  error = errors.New("The ID of the task is out of range!")
 )
 
-func (s *Storage) Add(dsc string) (int, error) {
+func (s Storage) containsUsr(usrID int) bool {
+	if user.UserIDCounter <= usrID || usrID <= 0 {
+		return false
+	}
+	return true
+}
+
+func (s Storage) containsTsk(tskID int) bool {
+	if task.TskIdCounter <= tskID || tskID <= 0 {
+		return false
+	}
+	return true
+}
+
+func (s *Storage) AddTsk(dsc string, usrId int) (int, error) {
 	if dsc == "" {
 		return -1, EmptyTitleErr
 	}
+	if !s.containsUsr(usrId) {
+		return -1, InvalidIDErr
+	}
 	newTask := task.Task{
-		ID:        len(s.Tasks) + 1,
+		ID:        task.GenId(),
 		Title:     dsc,
+		UserID:    user.GenId(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		TskStatus: task.ToDo,
@@ -37,35 +56,35 @@ func (s *Storage) Add(dsc string) (int, error) {
 	return newTask.ID, nil
 }
 
-func (s *Storage) Update(id int, dsc string) error {
+func (s *Storage) UpdateTsk(tskID int, dsc string) error {
 	if dsc == "" {
 		return EmptyTitleErr
 	}
-	if id < 0 || id > len(s.Tasks) {
+	if !s.containsTsk(tskID) {
 		return InvalidIDErr
 	}
-	s.Tasks[id].Title = dsc
-	s.Tasks[id].UpdatedAt = time.Now()
+	s.Tasks[tskID].Title = dsc
+	s.Tasks[tskID].UpdatedAt = time.Now()
 	return nil
 }
 
-func (s *Storage) Cancel(id int) error {
-	if id < 0 || id > len(s.Tasks) {
+func (s *Storage) CancelTsk(tskID int) error {
+	if !s.containsTsk(tskID) {
 		return InvalidIDErr
 	}
 
-	s.Tasks[id].TskStatus = task.Cancelled
+	s.Tasks[tskID].TskStatus = task.Cancelled
 	return nil
 }
 
-func (s *Storage) Mark(stt task.TskStatus, id int) error {
-	if id < 0 || id > len(s.Tasks) {
+func (s *Storage) Mark(stt task.TskStatus, tskID int) error {
+	if !s.containsTsk(tskID) {
 		return InvalidIDErr
 	}
-	if s.Tasks[id].TskStatus == task.Cancelled {
+	if s.Tasks[tskID].TskStatus == task.Cancelled {
 		return errors.New("This task has been cancelled!")
 	}
-	s.Tasks[id].TskStatus = stt
+	s.Tasks[tskID].TskStatus = stt
 	return nil
 }
 
