@@ -110,6 +110,7 @@ func main() {
 			os.Exit(1)
 		}
 		q.Arg1 = os.Args[2]
+	case "user_add":
 	default:
 		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", invalidOptionErr)
 		os.Exit(1)
