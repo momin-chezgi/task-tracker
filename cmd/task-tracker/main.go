@@ -54,6 +54,7 @@ func main() {
 			os.Exit(1)
 		}
 		q.Arg1 = os.Args[2]
+		q.Arg2 = os.Args[3]
 	case "update":
 		q.Action = query.UpdateCommand
 		if len(os.Args) != 4 {

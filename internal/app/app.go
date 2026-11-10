@@ -23,35 +23,36 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 
 	switch q.Action {
 	case query.AddCommand:
-		id, err := storage.Add(q.Arg1)
+		usrID, _ := strconv.Atoi(q.Arg2)
+		tskID, err := storage.AddTsk(q.Arg1, usrID)
 		if err != nil {
 			return err
 		}
-		q.Output = []string{fmt.Sprintf("Task added successfully (ID: %v)", id)}
+		q.Output = []string{fmt.Sprintf("Task added successfully (ID: %v)", tskID)}
 	case query.UpdateCommand:
-		id, err := strconv.Atoi(q.Arg1)
+		tskID, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err
 		}
-		err = storage.Update(id, q.Arg2)
+		err = storage.UpdateTsk(tskID, q.Arg2)
 		return err
 	case query.CancelCommand:
-		id, err := strconv.Atoi(q.Arg1)
+		tskID, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err
 		}
-		err = storage.Cancel(id)
+		err = storage.CancelTsk(tskID)
 		return err
 	case query.MarkCommand:
 		stt, err := task.StrToTskStatus(q.Arg1)
 		if err != nil {
 			return err
 		}
-		id, err := strconv.Atoi(q.Arg2)
+		tskID, err := strconv.Atoi(q.Arg2)
 		if err != nil {
 			return err
 		}
-		err = storage.Mark(stt, id)
+		err = storage.Mark(stt, tskID)
 		return err
 	case query.ListCommand:
 		if q.Arg1 == "" {
@@ -76,14 +77,14 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 		}
 		return err
 	case query.ShowCommand:
-		id, err := strconv.Atoi(q.Arg1)
+		tskID, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err
 		}
-		if id < 0 || id >= len(storage.Tasks) {
+		if tskID < 0 || tskID >= len(storage.Tasks) {
 			return store.InvalidIDErr
 		}
-		q.Output = []string{storage.Tasks[id].Format()}
+		q.Output = []string{storage.Tasks[tskID].Format()}
 	default:
 		return errors.New("Invalid action")
 	}
