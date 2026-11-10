@@ -8,11 +8,11 @@ import (
 
 type Task struct {
 	ID        int       `json:"id"`
-	Title     string    `json:"Title"`
+	Title     string    `json:"title"`
 	UserID    int       `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	TskStatus TskStatus `json:"TskStatus"`
+	TskStatus TskStatus `json:"tskStatus"`
 }
 
 var (

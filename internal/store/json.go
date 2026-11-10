@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/momin-chezgi/task-tracker/internal/task"
+	"github.com/momin-chezgi/task-tracker/internal/user"
 )
 
 // jsonFile overrides the default location in tests.
@@ -44,19 +45,19 @@ func Store(strg Storage) error {
 func Load() (Storage, error) {
 	path, err := DataFilePath()
 	if err != nil {
-		return Storage{}, err
+		return Storage{Tasks: []task.Task{}, Users: []user.User{}}, err
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return Storage{Tasks: []task.Task{}}, nil
+			return Storage{Tasks: []task.Task{}, Users: []user.User{}}, nil
 		}
 		return Storage{}, err
 	}
 	if len(bytes.TrimSpace(data)) == 0 {
-		return Storage{Tasks: []task.Task{}}, nil
+		return Storage{Tasks: []task.Task{}, Users: []user.User{}}, nil
 	}
-	var tasks []task.Task
-	err = json.Unmarshal(data, &tasks)
-	return Storage{Tasks: tasks}, err
+	strg := Storage{}
+	err = json.Unmarshal(data, &strg)
+	return strg, err
 }

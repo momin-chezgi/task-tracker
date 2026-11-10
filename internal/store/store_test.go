@@ -66,10 +66,10 @@ func TestDataFilePathUsesUserConfigDir(t *testing.T) {
 	}
 }
 
-func TestAdd(t *testing.T) {
+func TestAddTsk(t *testing.T) {
 	t.Run("Empty_Title", func(t *testing.T) {
 		storage := Storage{}
-		_, err := storage.Add("")
+		_, err := storage.AddTsk("", 0)
 		if err != EmptyTitleErr {
 			t.Errorf("An empty string can't be the Title of a task!")
 		}
@@ -77,9 +77,9 @@ func TestAdd(t *testing.T) {
 
 	t.Run("Task_with_an_ordinary_Title", func(t *testing.T) {
 		storage := newTestStorage()
-		newID, err := storage.Add("Arrange a meeting with my friend")
+		newID, err := storage.AddTsk("Arrange a meeting with my friend", 0)
 		if err != nil {
-			t.Errorf("An error happened in storage.Add(): %v", err)
+			t.Errorf("An error happened in storage.AddTsk(): %v", err)
 		}
 		if newID != len(storage.Tasks) {
 			t.Errorf("The new ID is not correct. Got:%d, want:%d", newID, len(storage.Tasks))
@@ -90,9 +90,9 @@ func TestAdd(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	storage := newTestStorage()
 
-	for _, id := range outOfRangeIDs {
+	for _, tskID := range outOfRangeIDs {
 		t.Run("Out_of_range_id", func(t *testing.T) {
-			err := storage.Update(id, "This ID is out of range and nothing should be changed!")
+			err := storage.UpdateTsk(tskID, "This ID is out of range and nothing should be changed!")
 			if err != InvalidIDErr {
 				t.Errorf("An out of range number can't be the ID of a task!")
 			}
@@ -100,22 +100,22 @@ func TestUpdate(t *testing.T) {
 	}
 
 	t.Run("Empty_Title", func(t *testing.T) {
-		err := storage.Update(1, "")
+		err := storage.UpdateTsk(1, "")
 		if err != EmptyTitleErr {
 			t.Errorf("An empty string can't be the Title of a task!")
 		}
 	})
 
-	for id := 0; id < len(storage.Tasks); id++ {
-		lastUpdate := storage.Tasks[id].UpdatedAt
-		err := storage.Update(id, "This is an updated task")
+	for tskID := 0; tskID < len(storage.Tasks); tskID++ {
+		lastUpdate := storage.Tasks[tskID].UpdatedAt
+		err := storage.UpdateTsk(tskID, "This is an updated task")
 		if err != nil {
 			t.Errorf("Can't update successfuly: %v", err)
 		}
-		if storage.Tasks[id].Title != "This is an updated task" {
-			t.Errorf("Can't update the Title. Got: %v, want: This is an updated task", storage.Tasks[id].Title)
+		if storage.Tasks[tskID].Title != "This is an updated task" {
+			t.Errorf("Can't update the Title. Got: %v, want: This is an updated task", storage.Tasks[tskID].Title)
 		}
-		if storage.Tasks[id].UpdatedAt.Equal(lastUpdate) {
+		if storage.Tasks[tskID].UpdatedAt.Equal(lastUpdate) {
 			t.Errorf("The updated time of the Task has not been updated")
 		}
 	}
@@ -124,9 +124,9 @@ func TestUpdate(t *testing.T) {
 func TestMark(t *testing.T) {
 	storage := newTestStorage()
 
-	for _, id := range outOfRangeIDs {
-		t.Run(fmt.Sprintf("Out_of_range_id:%v", id), func(t *testing.T) {
-			if err := storage.Mark(task.Done, id); err != InvalidIDErr {
+	for _, tskID := range outOfRangeIDs {
+		t.Run(fmt.Sprintf("Out_of_range_id:%v", tskID), func(t *testing.T) {
+			if err := storage.Mark(task.Done, tskID); err != InvalidIDErr {
 				t.Errorf("An out of range number can't be the ID of a task!")
 			}
 		})
@@ -171,15 +171,15 @@ func TestMark(t *testing.T) {
 func TestCancel(t *testing.T) {
 	storage := newTestStorage()
 
-	for _, id := range outOfRangeIDs {
-		t.Run(fmt.Sprintf("Out_range_id:%v", id), func(t *testing.T) {
-			if err := storage.Cancel(id); err != InvalidIDErr {
+	for _, tskID := range outOfRangeIDs {
+		t.Run(fmt.Sprintf("Out_range_id:%v", tskID), func(t *testing.T) {
+			if err := storage.CancelTsk(tskID); err != InvalidIDErr {
 				t.Errorf("An out of range number can't be the ID of a task!")
 			}
 		})
 	}
 	t.Run("Cancel_the_first_task", func(t *testing.T) {
-		err := storage.Cancel(0)
+		err := storage.CancelTsk(0)
 		if err != nil {
 			t.Fatalf("An error occurred while deleting a task: %v", err)
 		}
