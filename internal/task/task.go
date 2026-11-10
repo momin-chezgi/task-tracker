@@ -9,11 +9,15 @@ import (
 type Task struct {
 	ID        int       `json:"id"`
 	Title     string    `json:"Title"`
+	UserID    int       `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	TskStatus TskStatus `json:"TskStatus"`
-	UserID    int       `json:"user_id"`
 }
+
+var (
+	TskIdCounter = 0
+)
 
 var (
 	taskFormattingTemplate string = "---------------------\n%s	(%v)\nID: %v\nCreated at: %v\nUpdated at: %v\n---------------------\n"
@@ -25,6 +29,12 @@ var (
 	// Updated at: sep 28 20:20
 	// ---------------------
 )
+
+func GenId() (id int) {
+	id = TskIdCounter
+	TskIdCounter++
+	return id
+}
 
 func (t Task) Format() string {
 	return fmt.Sprintf(taskFormattingTemplate, t.Title, t.TskStatus, t.ID, t.CreatedAt, t.UpdatedAt)

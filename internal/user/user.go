@@ -8,5 +8,12 @@ type User struct {
 }
 
 var (
-	userIDCounter = 0
+	UserIDCounter = 1
+	rootUser      = User{ID: 0, Name: "root", Email: "root@root.com", Password: "root"}
 )
+
+func GenId() (id int) {
+	id = UserIDCounter
+	UserIDCounter++
+	return id
+}
