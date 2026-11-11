@@ -20,7 +20,7 @@ func (s *Storage) AddTsk(dsc string, usrId int) (int, error) {
 	if dsc == "" {
 		return -1, EmptyTitleErr
 	}
-	if !s.containsUsr(usrId) {
+	if !s.ContainsUsr(usrId) {
 		return -1, InvalidIDErr
 	}
 	newTask := task.Task{
@@ -39,7 +39,7 @@ func (s *Storage) UpdateTsk(tskID int, dsc string) error {
 	if dsc == "" {
 		return EmptyTitleErr
 	}
-	if !s.containsTsk(tskID) {
+	if !s.ContainsTsk(tskID) {
 		return InvalidIDErr
 	}
 	s.Tasks[tskID].Title = dsc
@@ -48,7 +48,7 @@ func (s *Storage) UpdateTsk(tskID int, dsc string) error {
 }
 
 func (s *Storage) CancelTsk(tskID int) error {
-	if !s.containsTsk(tskID) {
+	if !s.ContainsTsk(tskID) {
 		return InvalidIDErr
 	}
 
@@ -57,7 +57,7 @@ func (s *Storage) CancelTsk(tskID int) error {
 }
 
 func (s *Storage) Mark(stt task.TskStatus, tskID int) error {
-	if !s.containsTsk(tskID) {
+	if !s.ContainsTsk(tskID) {
 		return InvalidIDErr
 	}
 	if s.Tasks[tskID].TskStatus == task.Cancelled {

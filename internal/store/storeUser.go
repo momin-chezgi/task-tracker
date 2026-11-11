@@ -30,7 +30,7 @@ func (s *Storage) UpdateUsrName(usrID int, name string) error {
 	if strings.TrimSpace(name) == "" {
 		return EmptyTitleErr
 	}
-	if !s.containsUsr(usrID) {
+	if !s.ContainsUsr(usrID) {
 		return InvalidIDErr
 	}
 	s.Users[usrID].Name = name
@@ -41,7 +41,7 @@ func (s *Storage) UpdateUsrEmail(usrID int, email user.Email) error {
 	if !email.Validate() {
 		return InvalidEmailAddr
 	}
-	if !s.containsUsr(usrID) {
+	if !s.ContainsUsr(usrID) {
 		return InvalidIDErr
 	}
 	s.Users[usrID].Email = email
@@ -52,7 +52,7 @@ func (s *Storage) UpdateUsrPass(usrID int, pass user.Password) error {
 	if !pass.Validate() {
 		return InvalidPassword
 	}
-	if !s.containsUsr(usrID) {
+	if !s.ContainsUsr(usrID) {
 		return InvalidIDErr
 	}
 	s.Users[usrID].Password = pass
