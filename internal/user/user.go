@@ -1,12 +1,23 @@
 package user
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type User struct {
 	ID       int      `json:"id"`
 	Name     string   `json:"name"`
 	Email    Email    `json:"email"`
 	Password Password `json:"password"`
+}
+
+var (
+	userFormatingTemplate string = "---------------------\n%s	(%v)\nID: %v\n---------------------\n"
+)
+
+func (u User) Format() string {
+	return fmt.Sprintf(userFormatingTemplate, u.Name, u.Email, u.ID)
 }
 
 type Email string
