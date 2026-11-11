@@ -22,28 +22,28 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 	}()
 
 	switch q.Action {
-	case query.AddCommand:
+	case query.AddTsk:
 		usrID, _ := strconv.Atoi(q.Arg2)
 		tskID, err := storage.AddTsk(q.Arg1, usrID)
 		if err != nil {
 			return err
 		}
 		q.Output = []string{fmt.Sprintf("Task added successfully (ID: %v)", tskID)}
-	case query.UpdateCommand:
+	case query.UpdateTsk:
 		tskID, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err
 		}
 		err = storage.UpdateTsk(tskID, q.Arg2)
 		return err
-	case query.CancelCommand:
+	case query.CancelTsk:
 		tskID, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err
 		}
 		err = storage.CancelTsk(tskID)
 		return err
-	case query.MarkCommand:
+	case query.MarkTsk:
 		stt, err := task.StrToTskStatus(q.Arg1)
 		if err != nil {
 			return err
@@ -54,7 +54,7 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 		}
 		err = storage.Mark(stt, tskID)
 		return err
-	case query.ListCommand:
+	case query.ListTsk:
 		if q.Arg1 == "" {
 			for _, t := range storage.Tasks {
 				if t.TskStatus != task.Cancelled {
@@ -76,7 +76,7 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 			q.Output = append(q.Output, "Nothing here!")
 		}
 		return err
-	case query.ShowCommand:
+	case query.ShowTsk:
 		tskID, err := strconv.Atoi(q.Arg1)
 		if err != nil {
 			return err

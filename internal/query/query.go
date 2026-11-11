@@ -10,10 +10,16 @@ type Query struct {
 type Action int
 
 const (
-	AddCommand Action = iota + 1
-	UpdateCommand
-	CancelCommand
-	MarkCommand
-	ListCommand
-	ShowCommand
+	AddTsk Action = iota + 1
+	UpdateTsk
+	CancelTsk
+	MarkTsk
+	ListTsk
+	ShowTsk
+
+	AddUsr
+	UpdateUsr
+	DeleteUsr
+	ListUsr
+	ShowUsr
 )

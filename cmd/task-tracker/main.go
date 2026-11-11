@@ -48,7 +48,7 @@ func main() {
 		fmt.Fprintf(os.Stdout, "Version: %v\n", version)
 		os.Exit(0)
 	case "add":
-		q.Action = query.AddCommand
+		q.Action = query.AddTsk
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 			os.Exit(1)
@@ -56,7 +56,7 @@ func main() {
 		q.Arg1 = os.Args[2]
 		q.Arg2 = os.Args[3]
 	case "update":
-		q.Action = query.UpdateCommand
+		q.Action = query.UpdateTsk
 		if len(os.Args) != 4 {
 			fmt.Fprintf(os.Stderr, "%v, want:3, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 			os.Exit(1)
@@ -64,14 +64,14 @@ func main() {
 		q.Arg1 = os.Args[2]
 		q.Arg2 = os.Args[3]
 	case "cancel":
-		q.Action = query.CancelCommand
+		q.Action = query.CancelTsk
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 			os.Exit(1)
 		}
 		q.Arg1 = os.Args[2]
 	case "mark-in-progress":
-		q.Action = query.MarkCommand
+		q.Action = query.MarkTsk
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 			os.Exit(1)
@@ -79,7 +79,7 @@ func main() {
 		q.Arg1 = os.Args[1]
 		q.Arg2 = os.Args[2]
 	case "mark-done":
-		q.Action = query.MarkCommand
+		q.Action = query.MarkTsk
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 			os.Exit(1)
@@ -87,7 +87,7 @@ func main() {
 		q.Arg1 = os.Args[1]
 		q.Arg2 = os.Args[2]
 	case "mark-todo":
-		q.Action = query.MarkCommand
+		q.Action = query.MarkTsk
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 			os.Exit(1)
@@ -95,7 +95,7 @@ func main() {
 		q.Arg1 = os.Args[1]
 		q.Arg2 = os.Args[2]
 	case "list":
-		q.Action = query.ListCommand
+		q.Action = query.ListTsk
 		if len(os.Args) > 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:1 or 2 , got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 			os.Exit(1)
@@ -104,13 +104,14 @@ func main() {
 			q.Arg1 = os.Args[2]
 		}
 	case "show":
-		q.Action = query.ShowCommand
+		q.Action = query.ShowTsk
 		if len(os.Args) != 3 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 			os.Exit(1)
 		}
 		q.Arg1 = os.Args[2]
 	case "user_add":
+		q.Action =  
 	default:
 		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", invalidOptionErr)
 		os.Exit(1)
