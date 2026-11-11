@@ -18,7 +18,9 @@ const (
 	ShowTsk
 
 	AddUsr
-	UpdateUsr
+	UpdateUsrName
+	UpdateUsrEmail
+	UpdateUsrPass
 	DeleteUsr
 	ListUsr
 	ShowUsr
