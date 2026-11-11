@@ -49,12 +49,13 @@ func main() {
 		os.Exit(0)
 	case "add":
 		q.Action = query.AddTsk
-		if len(os.Args) != 3 {
+		if len(os.Args) != 5 {
 			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
 			os.Exit(1)
 		}
 		q.Arg1 = os.Args[2]
 		q.Arg2 = os.Args[3]
+		q.Arg3 = os.Args[4]
 	case "update":
 		q.Action = query.UpdateTsk
 		if len(os.Args) != 4 {

@@ -8,6 +8,7 @@ import (
 	"github.com/momin-chezgi/task-tracker/internal/query"
 	"github.com/momin-chezgi/task-tracker/internal/store"
 	"github.com/momin-chezgi/task-tracker/internal/task"
+	"github.com/momin-chezgi/task-tracker/internal/user"
 )
 
 func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
@@ -81,16 +82,43 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 		if err != nil {
 			return err
 		}
-		if tskID < 0 || tskID >= len(storage.Tasks) {
+		if !storage.ContainsTsk(tskID) {
 			return store.InvalidIDErr
 		}
 		q.Output = []string{storage.Tasks[tskID].Format()}
 	case query.AddUsr:
+		usrID, err := storage.AddUsr(q.Arg1, user.Email(q.Arg2), user.Password(q.Arg3))
+		if err != nil {
+			return err
+		}
+		q.Output = []string{fmt.Sprintf("User added successfully (ID: %v)", usrID)}
 	case query.UpdateUsrName:
+		usrID, err := strconv.Atoi(q.Arg1)
+		if err != nil {
+			return err
+		}
+		err = storage.UpdateUsrName(usrID, q.Arg2)
+		return err
 	case query.UpdateUsrEmail:
+		usrID, err := strconv.Atoi(q.Arg1)
+		if err != nil {
+			return err
+		}
+		err = storage.UpdateUsrEmail(usrID, user.Email(q.Arg2))
+		return err
 	case query.UpdateUsrPass:
+		usrID, err := strconv.Atoi(q.Arg1)
+		if err != nil {
+			return err
+		}
+		err = storage.UpdateUsrPass(usrID, user.Password(q.Arg2))
+		return err
 	case query.ListUsr:
+		for _, u := range storage.Users {
+			q.Output = append(q.Output, u.Format())
+		}
 	case query.ShowUsr:
+
 	default:
 		return errors.New("Invalid action")
 	}

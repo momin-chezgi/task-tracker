@@ -4,6 +4,7 @@ type Query struct {
 	Action Action
 	Arg1   string
 	Arg2   string
+	Arg3   string
 	Output []string
 }
 
