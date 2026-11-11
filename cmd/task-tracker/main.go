@@ -13,18 +13,25 @@ var (
 	version     = "dev"
 	helpMessage = `\n\nTask Tracker (CLI)\n
 	This is an application to create tasks, track them, change their status or even cancel them.\n
-	commands are:\n
-	$ add \"[Description of the task]\"\n
-	$ update [id] \"[The new description]\"\n
-	$ cancel [id]\n
-	$ mark-in-progress [id]\n
-	$ mark-done [id]\n
-	$ mark-todo [id]\n
+	+ Task-related commands are:\n
+	$ add \"[Description]\"\n
+	$ update [ID] \"[Description]\"\n
+	$ cancel [ID]\n
+	$ mark-in-progress [ID]\n
+	$ mark-done [ID]\n
+	$ mark-todo [ID]\n
 	$ list\n
 	$ list in-progress\n
 	$ list done\n
 	$ list todo\n
-	$ show [id]\n\n\n`
+	$ show [ID]\n
+	+ User-related commands are:\n
+	$ user_add \"[Name]\" \"[Email]\" \"[Password]\"\n
+	$ user_update_name \"[Name]\"\n
+	$ user_update_email \"[Email]\"\n
+	$ user_update_pass \"[Password]\"\n
+	$ user_list \n
+	$ user_show \"[ID]\"\n\n`
 )
 
 var (
