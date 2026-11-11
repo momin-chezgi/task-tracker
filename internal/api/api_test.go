@@ -17,12 +17,12 @@ import (
 func resetTaskStore(t *testing.T) {
 	t.Helper()
 
-	tskStorage = &store.Storage{Tasks: make([]task.Task, 0)}
-	idCounter = 0
+	strg = &store.Storage{Tasks: make([]task.Task, 0)}
+	task.TskIdCounter = 0
 
 	t.Cleanup(func() {
-		tskStorage.Tasks = make([]task.Task, 0)
-		idCounter = 0
+		strg.Tasks = make([]task.Task, 0)
+		task.TskIdCounter = 0
 	})
 }
 
@@ -205,7 +205,7 @@ func TestUpdateTask(t *testing.T) {
 
 		addASampleTaskJustForTesting(t)
 
-		taskSnapshot := tskStorage.Tasks[0]
+		taskSnapshot := strg.Tasks[0]
 
 		req := httptest.NewRequest(http.MethodPatch, "/tasks", nil)
 		req.SetPathValue("id", "1")
@@ -216,9 +216,9 @@ func TestUpdateTask(t *testing.T) {
 			t.Errorf("expected status %d, got %d",
 				http.StatusNotFound, rr.Code)
 		}
-		if taskSnapshot.TskStatus != tskStorage.Tasks[0].TskStatus ||
-			taskSnapshot.ID != tskStorage.Tasks[0].ID ||
-			taskSnapshot.Title != tskStorage.Tasks[0].Title {
+		if taskSnapshot.TskStatus != strg.Tasks[0].TskStatus ||
+			taskSnapshot.ID != strg.Tasks[0].ID ||
+			taskSnapshot.Title != strg.Tasks[0].Title {
 			t.Errorf("Task#0 shouldn't have changed.")
 		}
 	})
@@ -228,7 +228,7 @@ func TestUpdateTask(t *testing.T) {
 			t.Run(fmt.Sprintf("status %d", status), func(t *testing.T) {
 				resetTaskStore(t)
 				addASampleTaskJustForTesting(t)
-				taskSnapshot := tskStorage.Tasks[0]
+				taskSnapshot := strg.Tasks[0]
 
 				body, err := json.Marshal(struct {
 					Title     string `json:"title"`
@@ -249,7 +249,7 @@ func TestUpdateTask(t *testing.T) {
 				if rr.Code != http.StatusBadRequest {
 					t.Errorf("expected status %d, got %d", http.StatusBadRequest, rr.Code)
 				}
-				if tskStorage.Tasks[0] != taskSnapshot {
+				if strg.Tasks[0] != taskSnapshot {
 					t.Errorf("task should not change when the status is invalid")
 				}
 			})
@@ -325,8 +325,8 @@ func TestUpdateTask(t *testing.T) {
 				t.Errorf("The format of response body is not valid")
 			} else {
 
-				if responseTask.TskStatus != tskStorage.Tasks[idx].TskStatus ||
-					responseTask.Title != tskStorage.Tasks[idx].Title {
+				if responseTask.TskStatus != strg.Tasks[idx].TskStatus ||
+					responseTask.Title != strg.Tasks[idx].Title {
 					t.Errorf("The response task and updated task are not equal")
 				}
 				reqTask := addingTasks[idx]
@@ -346,7 +346,7 @@ func TestCancelTask(t *testing.T) {
 		resetTaskStore(t)
 
 		addASampleTaskJustForTesting(t)
-		taskSnapshot := tskStorage.Tasks[0]
+		taskSnapshot := strg.Tasks[0]
 
 		req := httptest.NewRequest(http.MethodDelete, "/tasks", nil)
 		req.SetPathValue("id", "1")
@@ -358,7 +358,7 @@ func TestCancelTask(t *testing.T) {
 			t.Errorf("expected status %d, got %d",
 				http.StatusNotFound, rr.Code)
 		}
-		if tskStorage.Tasks[0] != taskSnapshot {
+		if strg.Tasks[0] != taskSnapshot {
 			t.Errorf("Task#0 shouldn't have changed.")
 		}
 	})
@@ -366,7 +366,7 @@ func TestCancelTask(t *testing.T) {
 	t.Run("Reject a malformed task ID", func(t *testing.T) {
 		resetTaskStore(t)
 		addASampleTaskJustForTesting(t)
-		taskSnapshot := tskStorage.Tasks[0]
+		taskSnapshot := strg.Tasks[0]
 
 		req := httptest.NewRequest(http.MethodDelete, "/tasks", nil)
 		req.SetPathValue("id", "invalid")
@@ -378,7 +378,7 @@ func TestCancelTask(t *testing.T) {
 			t.Errorf("expected status %d, got %d",
 				http.StatusBadRequest, rr.Code)
 		}
-		if tskStorage.Tasks[0] != taskSnapshot {
+		if strg.Tasks[0] != taskSnapshot {
 			t.Errorf("Task#0 shouldn't have changed.")
 		}
 	})
@@ -386,7 +386,7 @@ func TestCancelTask(t *testing.T) {
 	t.Run("Reject a negative task ID", func(t *testing.T) {
 		resetTaskStore(t)
 		addASampleTaskJustForTesting(t)
-		taskSnapshot := tskStorage.Tasks[0]
+		taskSnapshot := strg.Tasks[0]
 
 		req := httptest.NewRequest(http.MethodDelete, "/tasks", nil)
 		req.SetPathValue("id", "-1")
@@ -398,7 +398,7 @@ func TestCancelTask(t *testing.T) {
 			t.Errorf("expected status %d, got %d",
 				http.StatusNotFound, rr.Code)
 		}
-		if tskStorage.Tasks[0] != taskSnapshot {
+		if strg.Tasks[0] != taskSnapshot {
 			t.Errorf("Task#0 shouldn't have changed.")
 		}
 	})
@@ -416,8 +416,8 @@ func TestCancelTask(t *testing.T) {
 			t.Errorf("expected status %d, got %d",
 				http.StatusNotFound, rr.Code)
 		}
-		if len(tskStorage.Tasks) != 0 {
-			t.Errorf("expected no tasks, got %d", len(tskStorage.Tasks))
+		if len(strg.Tasks) != 0 {
+			t.Errorf("expected no tasks, got %d", len(strg.Tasks))
 		}
 	})
 
@@ -435,7 +435,7 @@ func TestCancelTask(t *testing.T) {
 			t.Errorf("expected status %d, got %d",
 				http.StatusOK, rr.Code)
 		}
-		if tskStorage.Tasks[0].TskStatus != task.Cancelled {
+		if strg.Tasks[0].TskStatus != task.Cancelled {
 			t.Errorf("expected task to be marked deleted")
 		}
 	})
@@ -444,7 +444,7 @@ func TestCancelTask(t *testing.T) {
 		resetTaskStore(t)
 		addASampleTaskJustForTesting(t)
 		addASampleTaskJustForTesting(t)
-		firstTaskSnapshot := tskStorage.Tasks[0]
+		firstTaskSnapshot := strg.Tasks[0]
 
 		req := httptest.NewRequest(http.MethodDelete, "/tasks", nil)
 		req.SetPathValue("id", "1")
@@ -456,10 +456,10 @@ func TestCancelTask(t *testing.T) {
 			t.Errorf("expected status %d, got %d",
 				http.StatusOK, rr.Code)
 		}
-		if tskStorage.Tasks[0] != firstTaskSnapshot {
+		if strg.Tasks[0] != firstTaskSnapshot {
 			t.Errorf("Task#0 shouldn't have changed.")
 		}
-		if tskStorage.Tasks[1].TskStatus != task.Cancelled {
+		if strg.Tasks[1].TskStatus != task.Cancelled {
 			t.Errorf("expected Task#1 to be marked deleted")
 		}
 	})
@@ -476,7 +476,7 @@ func TestCancelTask(t *testing.T) {
 			t.Fatalf("expected first status %d, got %d",
 				http.StatusOK, firstRecorder.Code)
 		}
-		taskSnapshot := tskStorage.Tasks[0]
+		taskSnapshot := strg.Tasks[0]
 
 		secondReq := httptest.NewRequest(http.MethodDelete, "/tasks", nil)
 		secondReq.SetPathValue("id", "0")
@@ -487,7 +487,7 @@ func TestCancelTask(t *testing.T) {
 			t.Errorf("expected second status %d, got %d",
 				http.StatusNotFound, secondRecorder.Code)
 		}
-		if tskStorage.Tasks[0] != taskSnapshot {
+		if strg.Tasks[0] != taskSnapshot {
 			t.Errorf("Task#0 shouldn't have changed after repeated cancellation.")
 		}
 	})
@@ -500,7 +500,7 @@ func TestCancelTask(t *testing.T) {
 		req.SetPathValue("id", "0")
 		rr := httptest.NewRecorder()
 
-		tskStorage.Tasks[0].TskStatus = task.Done
+		strg.Tasks[0].TskStatus = task.Done
 
 		cancelTask(rr, req)
 		if rr.Code != http.StatusBadRequest {
@@ -539,7 +539,7 @@ func TestListAllTasks(t *testing.T) {
 
 	t.Run("returns active tasks in insertion order", func(t *testing.T) {
 		resetTaskStore(t)
-		tskStorage.Tasks = []task.Task{
+		strg.Tasks = []task.Task{
 			{ID: 0, Title: "first active task", TskStatus: task.ToDo},
 			{ID: 1, Title: "deleted task", TskStatus: task.Cancelled},
 			{ID: 2, Title: "last active task", TskStatus: task.Done},
@@ -610,7 +610,7 @@ func TestFilterTasks(t *testing.T) {
 
 	t.Run("returns only tasks matching the requested filter", func(t *testing.T) {
 		resetTaskStore(t)
-		tskStorage.Tasks = []task.Task{
+		strg.Tasks = []task.Task{
 			{ID: 0, Title: "first todo", TskStatus: task.ToDo},
 			{ID: 1, Title: "second done", TskStatus: task.Done},
 			{ID: 2, Title: "third in progress", TskStatus: task.InProgress},
@@ -649,7 +649,7 @@ func TestFilterTasks(t *testing.T) {
 
 	t.Run("rejects an invalid filter value", func(t *testing.T) {
 		resetTaskStore(t)
-		tskStorage.Tasks = []task.Task{{ID: 0, Title: "todo task", TskStatus: task.ToDo}}
+		strg.Tasks = []task.Task{{ID: 0, Title: "todo task", TskStatus: task.ToDo}}
 
 		req := httptest.NewRequest(http.MethodGet, "/tasks?marked_as=not-a-status", nil)
 		rr := httptest.NewRecorder()
@@ -729,7 +729,7 @@ func TestShowTask(t *testing.T) {
 	t.Run("returns not found for a deleted task", func(t *testing.T) {
 		resetTaskStore(t)
 		addASampleTaskJustForTesting(t)
-		tskStorage.Tasks[0].TskStatus = task.Cancelled
+		strg.Tasks[0].TskStatus = task.Cancelled
 
 		req := httptest.NewRequest(http.MethodGet, "/tasks", nil)
 		req.SetPathValue("id", "0")

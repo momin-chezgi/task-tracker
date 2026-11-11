@@ -37,13 +37,13 @@ func listTasks(w http.ResponseWriter, r *http.Request) {
 			writeJSONError(w, http.StatusBadRequest, "invalid task status: "+err.Error())
 			return
 		}
-		for _, rt := range tskStorage.Tasks {
+		for _, rt := range strg.Tasks {
 			if rt.TskStatus == filterStt {
 				activetskStorage = append(activetskStorage, rt)
 			}
 		}
 	} else {
-		for _, rt := range tskStorage.Tasks {
+		for _, rt := range strg.Tasks {
 			if rt.TskStatus != task.Cancelled {
 				activetskStorage = append(activetskStorage, rt)
 			}
@@ -74,17 +74,16 @@ func addNewTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reqTask.ID = idCounter
-	idCounter++
+	reqTask.ID = task.GenId()
 
 	reqTask.TskStatus = task.ToDo
 
 	reqTask.CreatedAt = time.Now()
 	reqTask.UpdatedAt = time.Now()
 
-	tskStorage.Tasks = append(tskStorage.Tasks, reqTask)
+	strg.Tasks = append(strg.Tasks, reqTask)
 
-	if err := store.Store(*tskStorage); err != nil {
+	if err := store.Store(*strg); err != nil {
 		log.Printf("storage error: %v\n", err)
 	}
 
@@ -127,25 +126,25 @@ func registerUser(w http.ResponseWriter, r *http.Request) {
 
 func showTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	tskIDStr := r.PathValue("id")
+	tskID, err := strconv.Atoi(tskIDStr)
 	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if id < 0 || id >= idCounter {
+	if tskID < 0 || tskID >= task.TskIdCounter {
 		writeJSONError(w, http.StatusNotFound, "id is out of the range")
 		return
 	}
 
-	if tskStorage.Tasks[id].TskStatus == task.Cancelled {
+	if strg.Tasks[tskID].TskStatus == task.Cancelled {
 		writeJSONError(w, http.StatusNotFound, "this task has been cancelled")
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	marshaled, err := json.Marshal(tskStorage.Tasks[id])
+	marshaled, err := json.Marshal(strg.Tasks[tskID])
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -154,30 +153,30 @@ func showTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func cancelTask(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	tskIDStr := r.PathValue("id")
+	tskID, err := strconv.Atoi(tskIDStr)
 	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if id < 0 || id >= idCounter {
+	if tskID < 0 || tskID >= task.TskIdCounter {
 		writeJSONError(w, http.StatusNotFound, "id is out of the range")
 		return
 	}
 
-	if tskStorage.Tasks[id].TskStatus == task.Cancelled {
+	if strg.Tasks[tskID].TskStatus == task.Cancelled {
 		writeJSONError(w, http.StatusNotFound, "this task has been cancelled")
 		return
 	}
 
-	if tskStorage.Tasks[id].TskStatus == task.Done {
+	if strg.Tasks[tskID].TskStatus == task.Done {
 		writeJSONError(w, http.StatusBadRequest, "this task has been done, you cannot mark a done task to cancelled!")
 		return
 	}
 
-	tskStorage.Tasks[id].TskStatus = task.Cancelled
-	if err := store.Store(*tskStorage); err != nil {
+	strg.Tasks[tskID].TskStatus = task.Cancelled
+	if err := store.Store(*strg); err != nil {
 		log.Printf("storage error: %v\n", err)
 	}
 
@@ -185,16 +184,16 @@ func cancelTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateTask(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
+	tskID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "invalid task ID: "+err.Error())
 		return
 	}
-	if id < 0 || id >= idCounter {
+	if tskID < 0 || tskID >= task.TskIdCounter {
 		writeJSONError(w, http.StatusNotFound, "task not found")
 		return
 	}
-	if tskStorage.Tasks[id].TskStatus == task.Cancelled {
+	if strg.Tasks[tskID].TskStatus == task.Cancelled {
 		writeJSONError(w, http.StatusNotFound, "task has been deleted")
 		return
 	}
@@ -230,23 +229,23 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 			writeJSONError(w, http.StatusBadRequest, "the title can't be empty")
 			return
 		}
-		tskStorage.Tasks[id].Title = *patch.Title
-		tskStorage.Tasks[id].UpdatedAt = time.Now()
+		strg.Tasks[tskID].Title = *patch.Title
+		strg.Tasks[tskID].UpdatedAt = time.Now()
 	}
 
 	if patch.TskStatus != nil {
-		tskStorage.Tasks[id].TskStatus = task.TskStatus(*patch.TskStatus)
-		tskStorage.Tasks[id].UpdatedAt = time.Now()
+		strg.Tasks[tskID].TskStatus = task.TskStatus(*patch.TskStatus)
+		strg.Tasks[tskID].UpdatedAt = time.Now()
 	}
 
-	if err := store.Store(*tskStorage); err != nil {
+	if err := store.Store(*strg); err != nil {
 		log.Printf("storage error: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 
-	if err := json.NewEncoder(w).Encode(tskStorage.Tasks[id]); err != nil {
+	if err := json.NewEncoder(w).Encode(strg.Tasks[tskID]); err != nil {
 		fmt.Println("encoding updated task:", err)
 	}
 

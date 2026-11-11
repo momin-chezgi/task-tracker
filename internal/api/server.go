@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/momin-chezgi/task-tracker/internal/store"
+	"github.com/momin-chezgi/task-tracker/internal/task"
 )
 
 var (
@@ -26,13 +27,12 @@ var (
 )
 
 var (
-	idCounter  = 0
-	tskStorage *store.Storage
+	strg *store.Storage
 )
 
-func Serve(tskPtr *store.Storage) error {
-	tskStorage = tskPtr
-	idCounter = len(tskStorage.Tasks)
+func Serve(theStrg *store.Storage) error {
+	strg = theStrg
+	task.TskIdCounter = len(strg.Tasks)
 
 	mux := http.NewServeMux()
 
@@ -78,7 +78,7 @@ func Serve(tskPtr *store.Storage) error {
 	select {
 	case <-ctx.Done():
 		log.Println("shutdown signal received, starting graceful shutdown")
-		if err := store.Store(*tskStorage); err != nil {
+		if err := store.Store(*strg); err != nil {
 			log.Printf("storage error: %v\n", err)
 		}
 	case err := <-errCh:
