@@ -21,7 +21,7 @@ const (
 	UpdateUsrName
 	UpdateUsrEmail
 	UpdateUsrPass
-	DeleteUsr
+	// DeleteUsr
 	ListUsr
 	ShowUsr
 )
