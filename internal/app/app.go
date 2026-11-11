@@ -85,6 +85,12 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 			return store.InvalidIDErr
 		}
 		q.Output = []string{storage.Tasks[tskID].Format()}
+	case query.AddUsr:
+	case query.UpdateUsrName:
+	case query.UpdateUsrEmail:
+	case query.UpdateUsrPass:
+	case query.ListUsr:
+	case query.ShowUsr:
 	default:
 		return errors.New("Invalid action")
 	}
