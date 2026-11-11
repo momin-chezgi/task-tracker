@@ -9,31 +9,12 @@ import (
 	"github.com/momin-chezgi/task-tracker/internal/task"
 )
 
-type Storage struct {
-	Tasks []task.Task
-	Users []user.User
-}
-
 var (
 	EmptyTitleErr    error = errors.New("An empty string can't be the name of a task!")
 	InvalidIDErr     error = errors.New("The ID of the task is out of range!")
 	InvalidEmailAddr error = errors.New("The email address is not correct!")
 	InvalidPassword  error = errors.New("The password is not valid")
 )
-
-func (s Storage) containsUsr(usrID int) bool {
-	if user.UserIDCounter <= usrID || usrID <= 0 {
-		return false
-	}
-	return true
-}
-
-func (s Storage) containsTsk(tskID int) bool {
-	if task.TskIdCounter <= tskID || tskID <= 0 {
-		return false
-	}
-	return true
-}
 
 func (s *Storage) AddTsk(dsc string, usrId int) (int, error) {
 	if dsc == "" {
