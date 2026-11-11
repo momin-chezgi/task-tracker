@@ -1,10 +1,38 @@
 package user
 
+import "strings"
+
 type User struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	ID       int      `json:"id"`
+	Name     string   `json:"name"`
+	Email    Email    `json:"email"`
+	Password Password `json:"password"`
+}
+
+type Email string
+
+func (e Email) Validate() bool {
+	if strings.TrimSpace(e.String()) == "" {
+		return false
+	}
+	return true
+}
+
+func (e Email) String() string {
+	return string(e)
+}
+
+type Password string
+
+func (pw Password) Validate() bool {
+	if strings.TrimSpace(pw.String()) == "" {
+		return false
+	}
+	return true
+}
+
+func (pw Password) String() string {
+	return string(pw)
 }
 
 var (

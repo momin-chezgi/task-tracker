@@ -15,8 +15,10 @@ type Storage struct {
 }
 
 var (
-	EmptyTitleErr error = errors.New("An empty string can't be the name of a task!")
-	InvalidIDErr  error = errors.New("The ID of the task is out of range!")
+	EmptyTitleErr    error = errors.New("An empty string can't be the name of a task!")
+	InvalidIDErr     error = errors.New("The ID of the task is out of range!")
+	InvalidEmailAddr error = errors.New("The email address is not correct!")
+	InvalidPassword  error = errors.New("The password is not valid")
 )
 
 func (s Storage) containsUsr(usrID int) bool {
