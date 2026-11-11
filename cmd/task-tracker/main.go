@@ -111,7 +111,51 @@ func main() {
 		}
 		q.Arg1 = os.Args[2]
 	case "user_add":
-		q.Action =  
+		q.Action = query.AddUsr
+		if len(os.Args) != 3 {
+			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
+		}
+		q.Arg1 = os.Args[2]
+		q.Arg2 = os.Args[3]
+	case "user_update_name":
+		q.Action = query.UpdateUsrName
+		if len(os.Args) != 4 {
+			fmt.Fprintf(os.Stderr, "%v, want:3, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
+		}
+		q.Arg1 = os.Args[2]
+		q.Arg2 = os.Args[3]
+	case "user_update_email":
+		q.Action = query.UpdateUsrEmail
+		if len(os.Args) != 4 {
+			fmt.Fprintf(os.Stderr, "%v, want:3, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
+		}
+		q.Arg1 = os.Args[2]
+		q.Arg2 = os.Args[3]
+	case "user_update_pass":
+		q.Action = query.UpdateUsrPass
+		if len(os.Args) != 4 {
+			fmt.Fprintf(os.Stderr, "%v, want:3, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
+		}
+		q.Arg1 = os.Args[2]
+		q.Arg2 = os.Args[3]
+	case "user_list":
+		q.Action = query.ListUsr
+		if len(os.Args) > 3 {
+			fmt.Fprintf(os.Stderr, "%v, want:1 or 2 , got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
+		}
+		q.Arg1 = os.Args[2]
+	case "user_show":
+		q.Action = query.ShowTsk
+		if len(os.Args) != 3 {
+			fmt.Fprintf(os.Stderr, "%v, want:2, got:%v\n", incorrectNumberOfArguments, len(os.Args)-1)
+			os.Exit(1)
+		}
+		q.Arg1 = os.Args[2]
 	default:
 		fmt.Fprintf(os.Stderr, "something went wrong: %v\n", invalidOptionErr)
 		os.Exit(1)
