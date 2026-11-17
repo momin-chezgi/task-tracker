@@ -64,10 +64,9 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 		if err != nil {
 			return err
 		}
-		if !storage.ContainsTsk(tskID) {
-			return store.InvalidIDErr
-		}
-		q.Output = []string{storage.Tasks[tskID].Format()}
+		message, err := storage.Show(tskID)
+		q.Output = []string{message}
+		return err
 	case query.AddUsr:
 		usrID, err := storage.AddUsr(q.Arg1, user.Email(q.Arg2), user.Password(q.Arg3))
 		if err != nil {

@@ -91,3 +91,10 @@ func (s *Storage) List(arg string) ([]string, error) {
 	}
 	return out, nil
 }
+
+func (s *Storage) Show(tskID int) (string, error) {
+	if !s.ContainsTsk(tskID) {
+		return "", InvalidIDErr
+	}
+	return s.Tasks[tskID].Format(), nil
+}
