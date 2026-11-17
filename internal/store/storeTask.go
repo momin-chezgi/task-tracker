@@ -66,3 +66,28 @@ func (s *Storage) Mark(stt task.TskStatus, tskID int) error {
 	s.Tasks[tskID].TskStatus = stt
 	return nil
 }
+
+func (s *Storage) List(arg string) ([]string, error) {
+	out := make([]string, 0)
+	if arg == "" {
+		for _, t := range s.Tasks {
+			if t.TskStatus != task.Cancelled {
+				out = append(out, t.Format())
+			}
+		}
+	} else {
+		stt, err := task.StrToTskStatus(arg)
+		if err != nil {
+			return nil, err
+		}
+		for _, t := range s.Tasks {
+			if t.TskStatus == stt {
+				out = append(out, t.Format())
+			}
+		}
+	}
+	if len(out) == 0 {
+		out = append(out, "Nothing here!")
+	}
+	return out, nil
+}

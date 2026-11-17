@@ -56,26 +56,8 @@ func ProcessTheQueryAndGetTheResult(q *query.Query) (outErr error) {
 		err = storage.Mark(stt, tskID)
 		return err
 	case query.ListTsk:
-		if q.Arg1 == "" {
-			for _, t := range storage.Tasks {
-				if t.TskStatus != task.Cancelled {
-					q.Output = append(q.Output, t.Format())
-				}
-			}
-		} else {
-			stt, err := task.StrToTskStatus(q.Arg1)
-			if err != nil {
-				return err
-			}
-			for _, t := range storage.Tasks {
-				if t.TskStatus == stt {
-					q.Output = append(q.Output, t.Format())
-				}
-			}
-		}
-		if len(q.Output) == 0 {
-			q.Output = append(q.Output, "Nothing here!")
-		}
+		listed, err := storage.List(q.Arg1)
+		q.Output = listed[:]
 		return err
 	case query.ShowTsk:
 		tskID, err := strconv.Atoi(q.Arg1)
